@@ -3,6 +3,7 @@
 #------------------------------------------------------------------------------
 import math, torch, json
 import torch.nn as nn
+from functools import reduce
 
 
 #------------------------------------------------------------------------------
@@ -82,9 +83,9 @@ class InvertedResidual(nn.Module):
 #  Class of MobileNetV2
 #------------------------------------------------------------------------------
 class MobileNetV2(nn.Module):
-	def __init__(self, n_classes=1000, img_layers=3, input_size=224, alpha=1.0, expansion=6):
+	def __init__(self, alpha=1.0, expansion=6, num_classes=1000):
 		super(MobileNetV2, self).__init__()
-		block = InvertedResidual
+		self.num_classes = num_classes
 		input_channel = 32
 		last_channel = 1280
 		interverted_residual_setting = [
@@ -99,19 +100,18 @@ class MobileNetV2(nn.Module):
 		]
 
 		# building first layer
-		assert input_size % 32 == 0
 		input_channel = _make_divisible(input_channel*alpha, 8)
 		self.last_channel = _make_divisible(last_channel*alpha, 8) if alpha > 1.0 else last_channel
-		self.features = [conv_bn(img_layers, input_channel, 2)]
+		self.features = [conv_bn(3, input_channel, 2)]
 
 		# building inverted residual blocks
 		for t, c, n, s in interverted_residual_setting:
 			output_channel = _make_divisible(int(c*alpha), 8)
 			for i in range(n):
 				if i == 0:
-					self.features.append(block(input_channel, output_channel, s, expansion=t))
+					self.features.append(InvertedResidual(input_channel, output_channel, s, expansion=t))
 				else:
-					self.features.append(block(input_channel, output_channel, 1, expansion=t))
+					self.features.append(InvertedResidual(input_channel, output_channel, 1, expansion=t))
 				input_channel = output_channel
 
 		# building last several layers
@@ -121,22 +121,58 @@ class MobileNetV2(nn.Module):
 		self.features = nn.Sequential(*self.features)
 
 		# building classifier
-		self.classifier = nn.Sequential(
-			nn.Dropout(0.2),
-			nn.Linear(self.last_channel, n_classes),
-		)
+		if self.num_classes is not None:
+			self.classifier = nn.Sequential(
+				nn.Dropout(0.2),
+				nn.Linear(self.last_channel, num_classes),
+			)
 
-		self._initialize_weights()
-
-
-	def forward(self, x):
-		x = self.features(x)
-		x = x.mean(3).mean(2)
-		x = self.classifier(x)
-		return x
+		# Initialize weights
+		self._init_weights()
 
 
-	def _initialize_weights(self):
+	def forward(self, x, feature_names=None):
+		low_features = {}
+
+		x = reduce(lambda x, n: self.features[n](x), list(range(0,2)), x)
+		low_features["stage1"] = x
+		x = reduce(lambda x, n: self.features[n](x), list(range(2,4)), x)
+		low_features["stage2"] = x
+		x = reduce(lambda x, n: self.features[n](x), list(range(4,7)), x)
+		low_features["stage3"] = x
+		x = reduce(lambda x, n: self.features[n](x), list(range(7,14)), x)
+		low_features["stage4"] = x
+		x = reduce(lambda x, n: self.features[n](x), list(range(14,19)), x)
+		low_features["stage5"] = x
+
+		if self.num_classes is not None:
+			x = x.mean(dim=(2,3))
+			x = self.classifier(x)
+
+		if feature_names is not None:
+			if type(feature_names)==str:
+				return x, low_features[feature_names]
+			elif type(feature_names)==list or type(feature_names)==tuple:
+				return tuple([x] + [low_features[name] for name in feature_names])
+		else:
+			return x
+
+
+	def _load_pretrained_model(self, pretrained_file):
+		pretrain_dict = torch.load(pretrained_file, map_location='cpu')
+		model_dict = {}
+		state_dict = self.state_dict()
+		print("[MobileNetV2] Loading pretrained model...")
+		for k, v in pretrain_dict.items():
+			if k in state_dict:
+				model_dict[k] = v
+			else:
+				print(k, "is ignored")
+		state_dict.update(model_dict)
+		self.load_state_dict(state_dict)
+
+
+	def _init_weights(self):
 		for m in self.modules():
 			if isinstance(m, nn.Conv2d):
 				n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels

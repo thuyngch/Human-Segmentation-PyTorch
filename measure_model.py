@@ -37,29 +37,17 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 # # UNet + MobileNetV2
 # model = UNet(
-# 	n_classes=2,
-# 	img_layers=args.img_layers,
-# 	backbone="MobileNetV2",
-# 	backbone_args={
-# 		"input_sz": args.input_sz,
-#         "alpha": 1.0,
-#         "expansion": 6,
-# 		"pretrained": "/media/antiaegis/storing/PyTorch-pretrained/mobilenet2.pth",
-# 	}
+# 	backbone="mobilenetv2",
+# 	num_classes=2,
+# 	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
 # )
 
-# # UNet + ResNet
-# model = UNet(
-#     n_classes=2,
-#     img_layers=args.img_layers,
-#     backbone="ResNet",
-#     backbone_args={
-#         "n_layers": 18,
-#         "filters": 64,
-#         "input_sz": args.input_sz,
-#         "pretrained": "/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-#     }
-# )
+# UNet + ResNet
+model = UNet(
+    backbone="resnet18",
+    num_classes=2,
+    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+)
 
 # # DeepLabV3+
 # model = DeepLab(
@@ -70,12 +58,12 @@ args = parser.parse_args()
 #     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 # )
 
-# BiSeNet
-model = BiSeNet(
-    backbone='resnet18',
-    num_classes=2,
-    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-)
+# # BiSeNet
+# model = BiSeNet(
+#     backbone='resnet18',
+#     num_classes=2,
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+# )
 
 
 #------------------------------------------------------------------------------

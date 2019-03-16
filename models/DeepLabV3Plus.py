@@ -102,7 +102,7 @@ class Decoder(nn.Module):
 #  DeepLabV3Plus
 #------------------------------------------------------------------------------
 class DeepLab(BaseModel):
-	def __init__(self, backbone='resnet50', output_stride=16, num_classes=21, freeze_bn=False, pretrained_backbone=None):
+	def __init__(self, backbone='resnet50', output_stride=16, num_classes=2, freeze_bn=False, pretrained_backbone=None):
 		super(DeepLab, self).__init__()
 		if backbone=='resnet18':
 			self.backbone = ResNet.resnet18(output_stride=output_stride, num_classes=None)

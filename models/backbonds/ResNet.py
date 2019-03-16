@@ -105,7 +105,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 	basic_inplanes = 64
 
-	def __init__(self, block, layers, img_layers=3, num_classes=1000, output_stride=32):
+	def __init__(self, block, layers, output_stride=32, num_classes=1000):
 		super(ResNet, self).__init__()
 		self.inplanes = self.basic_inplanes
 		self.output_stride = output_stride
@@ -123,7 +123,7 @@ class ResNet(nn.Module):
 		else:
 			raise NotImplementedError
 
-		self.conv1 = nn.Conv2d(img_layers, self.basic_inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+		self.conv1 = nn.Conv2d(3, self.basic_inplanes, kernel_size=7, stride=2, padding=3, bias=False)
 		self.bn1 = nn.BatchNorm2d(self.basic_inplanes)
 		self.relu = nn.ReLU(inplace=True)
 		self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -134,7 +134,6 @@ class ResNet(nn.Module):
 		self.layer4 = self._make_layer(block, 8*self.basic_inplanes, n_layers=layers[3], stride=strides[3], dilation=dilations[3])
 
 		if self.num_classes is not None:
-			self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 			self.fc = nn.Linear(8*self.basic_inplanes * block.expansion, num_classes)
 
 		self._init_weights()
@@ -146,23 +145,20 @@ class ResNet(nn.Module):
 		x = self.conv1(x)
 		x = self.bn1(x)
 		x = self.relu(x)
-		low_features["initial"] = x
+		low_features["stage1"] = x
 
 		x = self.maxpool(x)
-		low_features["maxpool"] = x
-
 		x = self.layer1(x)
-		low_features["layer1"] = x
+		low_features["stage2"] = x
 		x = self.layer2(x)
-		low_features["layer2"] = x
+		low_features["stage3"] = x
 		x = self.layer3(x)
-		low_features["layer3"] = x
+		low_features["stage4"] = x
 		x = self.layer4(x)
-		low_features["layer4"] = x
+		low_features["stage5"] = x
 
 		if self.num_classes is not None:
-			x = self.avgpool(x)
-			x = x.view(x.size(0), -1)
+			x = x.mean(dim=(2,3))
 			x = self.fc(x)
 
 		if feature_names is not None:

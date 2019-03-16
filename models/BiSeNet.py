@@ -86,7 +86,7 @@ class Fusion(nn.Module):
 #  BiSeNet
 #------------------------------------------------------------------------------
 class BiSeNet(BaseModel):
-	def __init__(self, backbone='resnet18', num_classes=21, pretrained_backbone=None):
+	def __init__(self, backbone='resnet18', num_classes=2, pretrained_backbone=None):
 		super(BiSeNet, self).__init__()
 		if backbone=='resnet18':
 			self.spatial_path = SpatialPath(basic_channels=64)
