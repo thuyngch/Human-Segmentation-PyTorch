@@ -104,4 +104,5 @@ venv.bak/
 .mypy_cache/
 
 # local
+.vscode/
 dataset/*.txt

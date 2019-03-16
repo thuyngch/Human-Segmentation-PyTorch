@@ -37,7 +37,7 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 # # UNet + MobileNetV2
 # model = UNet(
-# 	n_classes=1,
+# 	n_classes=2,
 # 	img_layers=args.img_layers,
 # 	backbone="MobileNetV2",
 # 	backbone_args={
@@ -50,7 +50,7 @@ args = parser.parse_args()
 
 # # UNet + ResNet
 # model = UNet(
-#     n_classes=1,
+#     n_classes=2,
 #     img_layers=args.img_layers,
 #     backbone="ResNet",
 #     backbone_args={
@@ -65,15 +65,15 @@ args = parser.parse_args()
 # model = DeepLab(
 #     backbone='resnet18',
 #     output_stride=16,
-#     num_classes=1,
+#     num_classes=2,
 #     freeze_bn=False,
-#     pretrained_backbone="/data4/livesegmentation/thuync/PyTorch-pretrained/resnet18.pth",
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 # )
 
 # BiSeNet
 model = BiSeNet(
     backbone='resnet18',
-    num_classes=1,
+    num_classes=2,
     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 )
 
