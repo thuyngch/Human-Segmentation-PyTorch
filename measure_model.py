@@ -1,11 +1,14 @@
 #------------------------------------------------------------------------------
 #	Libraries
 #------------------------------------------------------------------------------
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 import torch, argparse
 from time import time
 from torchsummary import summary
 
-from models.UNet import UNet
+from models import UNet, DeepLab, BiSeNet
 from utils.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
 
 
@@ -34,7 +37,7 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 # # UNet + MobileNetV2
 # model = UNet(
-# 	n_classes=2,
+# 	n_classes=1,
 # 	img_layers=args.img_layers,
 # 	backbone="MobileNetV2",
 # 	backbone_args={
@@ -45,17 +48,33 @@ args = parser.parse_args()
 # 	}
 # )
 
-# UNet + ResNet
-model = UNet(
-    n_classes=2,
-    img_layers=args.img_layers,
-    backbone="ResNet",
-    backbone_args={
-        "n_layers": 18,
-        "filters": 64,
-        "input_sz": args.input_sz,
-        "pretrained": "/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-    }
+# # UNet + ResNet
+# model = UNet(
+#     n_classes=1,
+#     img_layers=args.img_layers,
+#     backbone="ResNet",
+#     backbone_args={
+#         "n_layers": 18,
+#         "filters": 64,
+#         "input_sz": args.input_sz,
+#         "pretrained": "/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+#     }
+# )
+
+# # DeepLabV3+
+# model = DeepLab(
+#     backbone='resnet18',
+#     output_stride=16,
+#     num_classes=1,
+#     freeze_bn=False,
+#     pretrained_backbone="/data4/livesegmentation/thuync/PyTorch-pretrained/resnet18.pth",
+# )
+
+# BiSeNet
+model = BiSeNet(
+    backbone='resnet18',
+    num_classes=1,
+    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 )
 
 

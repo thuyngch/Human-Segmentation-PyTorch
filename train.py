@@ -28,9 +28,8 @@ def main(config, resume):
 
 	# Build model architecture
 	model = get_instance(module_arch, 'arch', config)
-	img_sz = config["arch"]["args"]["backbone_args"]["input_sz"]
-	img_layers = config["arch"]["args"]["img_layers"]
-	model.summary(input_shape=(img_layers, img_sz, img_sz))
+	img_sz = config["train_loader"]["args"]["resize"]
+	model.summary(input_shape=(3, img_sz, img_sz))
 
 	# Setup data_loader instances
 	train_loader = get_instance(module_data, 'train_loader', config).loader
@@ -64,7 +63,7 @@ if __name__ == '__main__':
 	# Argument parsing
 	parser = argparse.ArgumentParser(description='Train model')
 
-	parser.add_argument('-c', '--config', default="config_UNet.json", type=str,
+	parser.add_argument('-c', '--config', default="config_DeepLab.json", type=str,
 						   help='config file path (default: None)')
 
 	parser.add_argument('-r', '--resume', default=None, type=str,

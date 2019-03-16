@@ -17,7 +17,7 @@ def random_crop(image, label, crop_range):
 	crop_ratio (list) contains 2 bounds
 	"""
 	##### Exception #####
-	if crop_range[0]==crop_range[1]:
+	if crop_range[0]==crop_range[1] and crop_range[0]==1.0:
 		return image, label
 
 	# Get random crop_ratio
@@ -41,9 +41,10 @@ def random_crop(image, label, crop_range):
 #   Horizontal flip
 #------------------------------------------------------------------------------
 def flip_horizon(image, label, prob):
-	if np.random.choice([False, True], size=(), p=[1-prob, prob]):
-		image = np.flip(image, axis=1)
-		label = np.flip(label, axis=1)
+	if prob:
+		if np.random.choice([False, True], size=(), p=[1-prob, prob]):
+			image = np.flip(image, axis=1)
+			label = np.flip(label, axis=1)
 	return image, label
 
 
@@ -51,10 +52,11 @@ def flip_horizon(image, label, prob):
 #   Rotate 90
 #------------------------------------------------------------------------------
 def rotate_90(image, label, prob):
-	k = np.random.choice([-1, 0, 1], size=(), p=[prob/2, 1-prob, prob/2])
-	if k:
-		image = np.rot90(image, k=k, axes=(0,1))
-		label = np.rot90(label, k=k, axes=(0,1))
+	if prob:
+		k = np.random.choice([-1, 0, 1], size=(), p=[prob/2, 1-prob, prob/2])
+		if k:
+			image = np.rot90(image, k=k, axes=(0,1))
+			label = np.rot90(label, k=k, axes=(0,1))
 	return image, label
 
 
@@ -62,26 +64,27 @@ def rotate_90(image, label, prob):
 #   Rotate angle
 #------------------------------------------------------------------------------
 def rotate_angle(image, label, angle_max):
-	# Random angle in range [-angle_max, angle_max]
-	angle = np.random.choice(np.linspace(-angle_max, angle_max, num=21), size=())
+	if angle_max:
+		# Random angle in range [-angle_max, angle_max]
+		angle = np.random.choice(np.linspace(-angle_max, angle_max, num=21), size=())
 
-	# Get parameters for affine transform
-	(h, w) = image.shape[:2]
-	(cX, cY) = (w // 2, h // 2)
+		# Get parameters for affine transform
+		(h, w) = image.shape[:2]
+		(cX, cY) = (w // 2, h // 2)
 
-	M = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
-	cos = np.abs(M[0, 0])
-	sin = np.abs(M[0, 1])
+		M = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
+		cos = np.abs(M[0, 0])
+		sin = np.abs(M[0, 1])
 
-	nW = int((h * sin) + (w * cos))
-	nH = int((h * cos) + (w * sin))
+		nW = int((h * sin) + (w * cos))
+		nH = int((h * cos) + (w * sin))
 
-	M[0, 2] += (nW / 2) - cX
-	M[1, 2] += (nH / 2) - cY
+		M[0, 2] += (nW / 2) - cX
+		M[1, 2] += (nH / 2) - cY
 
-	# Perform transform
-	image = cv2.warpAffine(image, M, (nW, nH))
-	label = cv2.warpAffine(label, M, (nW, nH))
+		# Perform transform
+		image = cv2.warpAffine(image, M, (nW, nH))
+		label = cv2.warpAffine(label, M, (nW, nH))
 	return image, label
 
 
@@ -89,11 +92,13 @@ def rotate_angle(image, label, angle_max):
 #  Gaussian noise
 #------------------------------------------------------------------------------
 def random_noise(image, std):
-	noise = np.random.normal(0, std, size=image.shape)
-	image = image + noise
-	image[image<0] = 0
-	image[image>255] = 255
-	return image.astype(np.uint8)
+	if std:
+		noise = np.random.normal(0, std, size=image.shape)
+		image = image + noise
+		image[image<0] = 0
+		image[image>255] = 255
+		image = image.astype(np.uint8)
+	return image
 
 
 #------------------------------------------------------------------------------

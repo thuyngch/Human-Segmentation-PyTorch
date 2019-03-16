@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 #   Libraries
 #------------------------------------------------------------------------------
-import torch, math
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from functools import reduce
@@ -16,7 +16,6 @@ from models.backbonds.ResNet import (
 	get_resnet, conv1x1,
 	BasicBlock, Bottleneck,
 )
-
 
 
 #------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ class UNet(BaseModel):
 			print("Backbone loaded from %s" % (pretrained))
 
 
-	def forward(self, input):
+	def forward(self, input, ret_sigmoid=True):
 		# Encoder
 		x = input
 		if self.backbone_type=="MobileNetV2":
@@ -76,7 +75,8 @@ class UNet(BaseModel):
 		# Last layers for normal
 		y = self.conv_last(up4)
 		y = F.interpolate(y, scale_factor=2, mode='bilinear', align_corners=True)
-		y = torch.sigmoid(y)
+		if ret_sigmoid:
+			y = torch.sigmoid(y)
 		return y
 
 
@@ -85,6 +85,7 @@ class UNet(BaseModel):
 		alpha = backbone_args["alpha"]
 		expansion = backbone_args["expansion"]
 		self.backbone = MobileNetV2(img_layers=self.img_layers, input_size=input_size, alpha=alpha, expansion=expansion)
+		del self.backbone.classifier
 		# Stage 1
 		output_channel1 = _make_divisible(int(96*alpha), 8)
 		self.convtrans1 = nn.ConvTranspose2d(self.backbone.last_channel, output_channel1, kernel_size=4, padding=1, stride=2)
@@ -105,10 +106,11 @@ class UNet(BaseModel):
 
 
 	def setup_ResNet(self, backbone_args):
+		filters = 64
 		n_layers = backbone_args["n_layers"]
-		filters = backbone_args["filters"]
 		block = BasicBlock if (n_layers==18 or n_layers==34) else Bottleneck
-		self.backbone = get_resnet(n_layers, img_layers=self.img_layers, filters=filters)
+		self.backbone = get_resnet(n_layers, img_layers=self.img_layers)
+		del self.backbone.avgpool, self.backbone.fc
 		# Stage 1
 		last_channel = 8*filters if (n_layers==18 or n_layers==34) else 32*filters
 		output_channel1 = 4*filters if (n_layers==18 or n_layers==34) else 16*filters

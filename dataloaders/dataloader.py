@@ -1,6 +1,9 @@
 #------------------------------------------------------------------------------
 #   Libraries
 #------------------------------------------------------------------------------
+import warnings
+warnings.filterwarnings('ignore')
+
 import cv2, os
 import numpy as np
 from random import shuffle

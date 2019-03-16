@@ -74,7 +74,7 @@ class Trainer(BaseTrainer):
 		total_metrics = np.zeros(len(self.metrics))
 		n_iter = len(self.data_loader)
 		for batch_idx, (data, target) in tqdm(enumerate(self.data_loader), total=n_iter):
-			# curr_iter = batch_idx + (epoch-1)*n_iter
+			curr_iter = batch_idx + (epoch-1)*n_iter
 			data, target = data.to(self.device), target.to(self.device)
 			self.optimizer.zero_grad()
 			output = self.model(data)
@@ -88,8 +88,8 @@ class Trainer(BaseTrainer):
 			if (batch_idx==n_iter-2) and (self.verbosity>=2):
 				self.writer_train.add_image('train/input', make_grid(data[:,:3,:,:].cpu(), nrow=4, normalize=True))
 				self.writer_train.add_image('train/label', make_grid(target.unsqueeze(1).cpu(), nrow=4, normalize=True))
-				self.writer_train.add_image('train/output', make_grid(output.cpu(), nrow=4, normalize=True))
-				# self.writer_train.add_image('train/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+				# self.writer_train.add_image('train/output', make_grid(output.cpu(), nrow=4, normalize=True))
+				self.writer_train.add_image('train/output', make_grid(F.softmax(output[0], dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
 
 			# poly_lr_scheduler(self.optimizer, self.init_lr, curr_iter, self.max_iter, power=0.9)
 
@@ -151,8 +151,8 @@ class Trainer(BaseTrainer):
 				if (batch_idx==n_iter-2) and(self.verbosity>=2):
 					self.writer_valid.add_image('valid/input', make_grid(data[:,:3,:,:].cpu(), nrow=4, normalize=True))
 					self.writer_valid.add_image('valid/label', make_grid(target.unsqueeze(1).cpu(), nrow=4, normalize=True))
-					self.writer_valid.add_image('valid/output', make_grid(output.cpu(), nrow=4, normalize=True))
-					# self.writer_valid.add_image('valid/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+					# self.writer_valid.add_image('valid/output', make_grid(output.cpu(), nrow=4, normalize=True))
+					self.writer_valid.add_image('valid/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
 
 			# Record log
 			total_val_loss /= len(self.valid_data_loader)

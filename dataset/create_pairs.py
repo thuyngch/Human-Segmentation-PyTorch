@@ -1,20 +1,27 @@
 #------------------------------------------------------------------------------
 #	Libraries
 #------------------------------------------------------------------------------
-import os
+import os, cv2
+import numpy as np
 from glob import glob
+from tqdm import tqdm
 from random import shuffle, seed
+from multiprocessing import Pool, Manager
 
 
 #------------------------------------------------------------------------------
 #	Main execution
 #------------------------------------------------------------------------------
 # Get files
-image_files = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/images/*.*"))
-image_files += sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/Supervisely/data_for_run/images/*.*"))
+image_files  = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/images/*.*"))
+# image_files += sorted(glob("/data/livesegmentation/supervisely/images/*.*"))
+# image_files += sorted(glob("/data/livesegmentation/za_v1/images/*.*"))
+# image_files += sorted(glob("/data/livesegmentation/za_v2/images/*.*"))
 
-label_files = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/labels/*.*"))
-label_files += sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/Supervisely/data_for_run/labels/*.*"))
+label_files  = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/labels/*.*"))
+# label_files += sorted(glob("/data/livesegmentation/supervisely/labels/*.*"))
+# label_files += sorted(glob("/data/livesegmentation/za_v1/labels/*.*"))
+# label_files += sorted(glob("/data/livesegmentation/za_v2/labels/*.*"))
 
 assert len(image_files)==len(label_files)
 n_files = len(image_files)
@@ -25,29 +32,66 @@ shuffle(image_files)
 seed(0)
 shuffle(label_files)
 
+# Count number of pixels belong to categories
+manager = Manager()
+foregrounds = manager.list([])
+backgrounds = manager.list([])
+
+def pool_func(args):
+    label_file = args
+    img = cv2.imread(label_file, 0)
+    foreground = np.sum((img>0).astype(np.uint8)) / img.size
+    background = np.sum((img==0).astype(np.uint8)) / img.size
+    foregrounds.append(foreground)
+    backgrounds.append(background)
+
+pools = Pool(processes=8)
+args = label_files
+for _ in tqdm(pools.imap_unordered(pool_func, args), total=len(label_files)):
+    pass
+
+foregrounds = [element for element in foregrounds]
+backgrounds = [element for element in backgrounds]
+print("foregrounds:", sum(foregrounds)/n_files)
+print("backgrounds:", sum(backgrounds)/n_files)
+print("ratio:", sum(foregrounds) / sum(backgrounds))
+
+# Divide into 3 groups: small, averg, and large
+RATIO = [0.2, 0.8]
+averg_ind = []
+for idx, foreground in enumerate(foregrounds):
+    if RATIO[0] <= foreground <= RATIO[1]:
+        averg_ind.append(idx)
+print("Number of averg indices:", len(averg_ind))
+
 # Split train/valid
 RATIO = 0.9
-N_TRAIN = int(RATIO * n_files)
-print("Number of training samples:", N_TRAIN)
-print("Number of validating samples:", n_files-N_TRAIN)
+TRAIN_FILE = "dataset/antiaegis_train_mask_eg.txt"
+VALID_FILE = "dataset/antiaegis_valid_mask_eg.txt"
 
-# Train dataset
-fp = open("dataset/train_pairs.txt", 'w')
-for image, label in zip(image_files[:N_TRAIN], label_files[:N_TRAIN]):
-    line = "%s, %s" % (image, label)
+shuffle(averg_ind)
+ind_train = averg_ind[:int(RATIO*len(averg_ind))]
+ind_valid = averg_ind[int(RATIO*len(averg_ind)):]
+print("Number of training samples:", len(ind_train))
+print("Number of validating samples:", len(ind_valid))
+
+fp = open(TRAIN_FILE, "w")
+for idx in ind_train:
+    image_file, label_file = image_files[idx], label_files[idx]
+    line = "%s, %s" % (image_file, label_file)
     fp.writelines(line + "\n")
 
-# Valid dataset
-fp = open("dataset/valid_pairs.txt", 'w')
-for image, label in zip(image_files[N_TRAIN:], label_files[N_TRAIN:]):
-    line = "%s, %s" % (image, label)
+fp = open(VALID_FILE, "w")
+for idx in ind_valid:
+    image_file, label_file = image_files[idx], label_files[idx]
+    line = "%s, %s" % (image_file, label_file)
     fp.writelines(line + "\n")
 
 
 #------------------------------------------------------------------------------
 #   Check training dataset
 #------------------------------------------------------------------------------
-fp = open("dataset/train_pairs.txt", 'r')
+fp = open(TRAIN_FILE, 'r')
 lines = fp.read().split("\n")
 lines = [line.strip() for line in lines if len(line)]
 lines = [line.split(", ") for line in lines]
@@ -64,7 +108,7 @@ for line in lines:
 #------------------------------------------------------------------------------
 #   Check validating dataset
 #------------------------------------------------------------------------------
-fp = open("dataset/valid_pairs.txt", 'r')
+fp = open(VALID_FILE, 'r')
 lines = fp.read().split("\n")
 lines = [line.strip() for line in lines if len(line)]
 lines = [line.split(", ") for line in lines]

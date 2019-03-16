@@ -82,7 +82,7 @@ class InvertedResidual(nn.Module):
 #  Class of MobileNetV2
 #------------------------------------------------------------------------------
 class MobileNetV2(nn.Module):
-	def __init__(self, n_classes=1000, img_layers=3, input_size=224, alpha=1., expansion=6):
+	def __init__(self, n_classes=1000, img_layers=3, input_size=224, alpha=1.0, expansion=6):
 		super(MobileNetV2, self).__init__()
 		block = InvertedResidual
 		input_channel = 32

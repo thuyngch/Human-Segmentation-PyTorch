@@ -38,3 +38,17 @@ def miou(logits, targets, eps=1e-6):
 	union = (outputs | targets).type(torch.float32).sum(dim=(2,3))
 	iou = inter / (union + eps)
 	return iou.mean()
+
+
+#------------------------------------------------------------------------------
+#   Custom IoU for BiSeNet
+#------------------------------------------------------------------------------
+def custom_bisenet_iou(logits, targets):
+	"""
+	logits: (torch.float32) (main_out, feat_os16_sup, feat_os32_sup) of shape (N, C, H, W)
+	targets: (torch.float32) shape (N, H, W), value {0,1,...,C-1}
+	"""
+	if type(logits)==tuple:
+		return miou(logits[0], targets)
+	else:
+		return miou(logits, targets)
