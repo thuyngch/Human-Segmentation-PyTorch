@@ -53,7 +53,7 @@
 	"optimizer": {
 		"type": "Adam",
 		"args":{
-			"lr": 5e-3,
+			"lr": 1e-3,
 			"weight_decay": 1e-8
 		}
 	},

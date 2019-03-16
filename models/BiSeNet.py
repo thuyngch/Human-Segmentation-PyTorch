@@ -29,11 +29,11 @@ class ConvBlock(nn.Module):
 #  Spatial Path
 #------------------------------------------------------------------------------
 class SpatialPath(nn.Module):
-	def __init__(self):
+	def __init__(self, basic_channels=64):
 		super(SpatialPath, self).__init__()
-		self.conv1 = ConvBlock(in_channels=3  , out_channels=64 , kernel_size=3, stride=2, padding=1)
-		self.conv2 = ConvBlock(in_channels=64 , out_channels=128, kernel_size=3, stride=2, padding=1)
-		self.conv3 = ConvBlock(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1)
+		self.conv1 = ConvBlock(in_channels=3, out_channels=basic_channels , kernel_size=3, stride=2, padding=1)
+		self.conv2 = ConvBlock(in_channels=basic_channels, out_channels=2*basic_channels, kernel_size=3, stride=2, padding=1)
+		self.conv3 = ConvBlock(in_channels=2*basic_channels, out_channels=4*basic_channels, kernel_size=3, stride=2, padding=1)
 
 	def forward(self, input):
 		x = self.conv1(input)
@@ -89,7 +89,7 @@ class BiSeNet(BaseModel):
 	def __init__(self, backbone='resnet18', num_classes=21, pretrained_backbone=None):
 		super(BiSeNet, self).__init__()
 		if backbone=='resnet18':
-			self.spatial_path = SpatialPath()
+			self.spatial_path = SpatialPath(basic_channels=64)
 			self.context_path = ResNet.resnet18(num_classes=None)
 			self.low_feat_names = 'layer3'
 			self.arm_os16 = Attention(in_channels=256)
@@ -117,21 +117,21 @@ class BiSeNet(BaseModel):
 		feat_os16 = self.arm_os16(feat_os16)
 		feat_os32 = self.arm_os32(feat_os32)
 		feat_os32 = torch.mul(feat_os32, feat_gap)
-		
-		feat_os16 = F.interpolate(feat_os16, scale_factor=2, mode='bilinear', align_corners=False)
-		feat_os32 = F.interpolate(feat_os32, scale_factor=4, mode='bilinear', align_corners=False)
+
+		feat_os16 = F.interpolate(feat_os16, scale_factor=2, mode='bilinear', align_corners=True)
+		feat_os32 = F.interpolate(feat_os32, scale_factor=4, mode='bilinear', align_corners=True)
 		feat_context = torch.cat([feat_os16, feat_os32], dim=1)
 
 		# Supervision
 		if self.training:
 			feat_os16_sup = self.sup_os16(feat_os16)
 			feat_os32_sup = self.sup_os32(feat_os32)
-			feat_os16_sup = F.interpolate(feat_os16_sup, scale_factor=8, mode='bilinear', align_corners=False)
-			feat_os32_sup = F.interpolate(feat_os32_sup, scale_factor=8, mode='bilinear', align_corners=False)
+			feat_os16_sup = F.interpolate(feat_os16_sup, scale_factor=8, mode='bilinear', align_corners=True)
+			feat_os32_sup = F.interpolate(feat_os32_sup, scale_factor=8, mode='bilinear', align_corners=True)
 
 		# Fusion
 		x = self.ffm(feat_spatial, feat_context)
-		x = F.interpolate(x, scale_factor=8, mode='bilinear', align_corners=False)
+		x = F.interpolate(x, scale_factor=8, mode='bilinear', align_corners=True)
 		x = self.conv_final(x)
 
 		# Output

@@ -22,7 +22,7 @@ from models.backbonds.ResNet import (
 #   Class of UNet with different backbones
 #------------------------------------------------------------------------------
 class UNet(BaseModel):
-	def __init__(self, img_layers=3, n_classes=2, backbone="MobileNetV2", backbone_args=None):
+	def __init__(self, img_layers=3, num_classes=2, backbone="MobileNetV2", backbone_args=None):
 		super(UNet, self).__init__()
 		self.img_layers = img_layers
 		self.backbone_type = backbone
@@ -36,7 +36,7 @@ class UNet(BaseModel):
 		# Layers for outputing a segmentation map
 		self.conv_last = nn.Sequential(
 			nn.Conv2d(output_channel4, 3, kernel_size=1),
-			nn.Conv2d(3, n_classes, kernel_size=1),
+			nn.Conv2d(3, num_classes, kernel_size=1),
 		)
 
 		# Initialize weights
@@ -49,7 +49,7 @@ class UNet(BaseModel):
 			print("Backbone loaded from %s" % (pretrained))
 
 
-	def forward(self, input, ret_sigmoid=True):
+	def forward(self, input):
 		# Encoder
 		x = input
 		if self.backbone_type=="MobileNetV2":
@@ -75,8 +75,6 @@ class UNet(BaseModel):
 		# Last layers for normal
 		y = self.conv_last(up4)
 		y = F.interpolate(y, scale_factor=2, mode='bilinear', align_corners=True)
-		if ret_sigmoid:
-			y = torch.sigmoid(y)
 		return y
 
 

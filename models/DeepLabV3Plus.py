@@ -139,13 +139,11 @@ class DeepLab(BaseModel):
 			self._freeze_bn()
 
 
-	def forward(self, input, ret_sigmoid=True):
+	def forward(self, input):
 		x, low_feat = self.backbone(input, feature_names=self.low_feat_names)
 		x = self.aspp(x)
 		x = self.decoder(x, low_feat)
 		x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
-		if ret_sigmoid:
-			x = torch.sigmoid(x)
 		return x
 
 

@@ -32,9 +32,6 @@ parser.add_argument('--use_cuda', action='store_true', default=True,
 parser.add_argument('--bg', type=str, default=None,
                     help='Path to the background image file')
 
-parser.add_argument('--img_layers', type=int, default=3,
-                    help='Number of layers of the input image')
-
 parser.add_argument('--input_sz', type=int, default=224,
                     help='Input size')
 
@@ -68,9 +65,10 @@ else:
 #------------------------------------------------------------------------------
 #	Main execution
 #------------------------------------------------------------------------------
+# Setup model
 model = UNet(
-    n_classes=1,
-    img_layers=args.img_layers,
+    num_classes=1,
+    img_layers=3,
     backbone="ResNet",
     backbone_args={
         "n_layers": 18,
@@ -100,13 +98,13 @@ while(cap.isOpened()):
 	preproc_time = time()
 	with torch.no_grad():
 		if args.use_cuda:
-			mask = model(X.cuda(), ret_sigmoid=False)
+			mask = model(X.cuda())
 			mask = mask[..., pad_up: pad_up+h_new, pad_left: pad_left+w_new]
 			mask = F.interpolate(mask, size=(h,w), mode='bilinear', align_corners=True)
 			mask = torch.sigmoid(mask)
 			mask = mask[0,0,...].cpu().numpy()
 		else:
-			mask = model(X, ret_sigmoid=False)
+			mask = model(X)
 			mask = mask[..., pad_up: pad_up+h_new, pad_left: pad_left+w_new]
 			mask = F.interpolate(mask, size=(h,w), mode='bilinear', align_corners=True)
 			mask = torch.sigmoid(mask)
@@ -115,8 +113,8 @@ while(cap.isOpened()):
 
 	# Draw result
 	if args.bg is None:
-		# image_alpha = utils.draw_matting(image, mask)
-		image_alpha = utils.draw_transperency(image, mask, COLOR1, COLOR2)
+		image_alpha = utils.draw_matting(image, mask)
+		# image_alpha = utils.draw_transperency(image, mask, COLOR1, COLOR2)
 	else:
 		image_alpha = utils.draw_fore_to_back(image, mask, BACKGROUND, kernel_sz=KERNEL_SZ, sigma=SIGMA)
 	draw_time = time()
