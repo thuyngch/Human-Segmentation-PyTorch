@@ -14,14 +14,10 @@ from multiprocessing import Pool, Manager
 #------------------------------------------------------------------------------
 # Get files
 image_files  = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/images/*.*"))
-# image_files += sorted(glob("/data/livesegmentation/supervisely/images/*.*"))
-# image_files += sorted(glob("/data/livesegmentation/za_v1/images/*.*"))
-# image_files += sorted(glob("/data/livesegmentation/za_v2/images/*.*"))
+image_files += sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/Supervisely/data_for_run/images/*.*"))
 
 label_files  = sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/EG/data_for_run/labels/*.*"))
-# label_files += sorted(glob("/data/livesegmentation/supervisely/labels/*.*"))
-# label_files += sorted(glob("/data/livesegmentation/za_v1/labels/*.*"))
-# label_files += sorted(glob("/data/livesegmentation/za_v2/labels/*.*"))
+label_files += sorted(glob("/media/antiaegis/storing/datasets/HumanSeg/Supervisely/data_for_run/labels/*.*"))
 
 assert len(image_files)==len(label_files)
 n_files = len(image_files)
@@ -66,8 +62,8 @@ print("Number of averg indices:", len(averg_ind))
 
 # Split train/valid
 RATIO = 0.9
-TRAIN_FILE = "dataset/antiaegis_train_mask_eg.txt"
-VALID_FILE = "dataset/antiaegis_valid_mask_eg.txt"
+TRAIN_FILE = "dataset/antiaegis_train_mask.txt"
+VALID_FILE = "dataset/antiaegis_valid_mask.txt"
 
 shuffle(averg_ind)
 ind_train = averg_ind[:int(RATIO*len(averg_ind))]
