@@ -7,6 +7,11 @@ Human segmentation using Deep Learning, implemented in PyTorch
 * [BiSeNet](https://arxiv.org/abs/1808.00897): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18)
 * [PSPNet](https://arxiv.org/abs/1612.01105): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18,34,50,101)
 
+* To assess architecture, memory, forward time (in either cpu or gpu), numper of parameters, and number of FLOPs of a network, use this command:
+```
+python measure_model.py
+```
+
 ## Dataset
 * [Automatic Portrait Segmentation for Image Stylization](http://xiaoyongshen.me/webpage_portrait/index.html): 1800 images
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
