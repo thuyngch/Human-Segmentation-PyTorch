@@ -10,3 +10,15 @@ Human segmentation using Deep Learning, implemented in PyTorch
 ## Dataset
 * [Automatic Portrait Segmentation for Image Stylization](http://xiaoyongshen.me/webpage_portrait/index.html): 1800 images
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
+
+## Training
+* For training a network from scratch, for example DeepLab3+, use this command:
+```
+python train.py --config config/config_DeepLab.json --device 0
+```
+where *config/config_DeepLab.json* is the configuration file which contains network, dataloader, optimizer, losses, metrics, and visualization configurations.
+* For resuming training the network from a checkpoint, use this command:
+```
+python train.py --config config/config_DeepLab.json --device 0 --resume path_to_checkpoint/model_best.pth
+```
+* One can open tensorboard to monitor the training progress by enabling the visualization mode in the configuration file.
