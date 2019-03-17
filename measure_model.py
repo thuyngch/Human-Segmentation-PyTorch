@@ -8,7 +8,7 @@ import torch, argparse
 from time import time
 from torchsummary import summary
 
-from models import UNet, DeepLab, BiSeNet
+from models import UNet, DeepLab, BiSeNet, PSPNet
 from utils.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
 
 
@@ -26,7 +26,7 @@ parser.add_argument('--img_layers', type=int, default=3,
 parser.add_argument('--input_sz', type=int, default=224,
                     help='Size of the input')
 
-parser.add_argument('--n_measures', type=int, default=100,
+parser.add_argument('--n_measures', type=int, default=10,
                     help='Number of time measurements')
 
 args = parser.parse_args()
@@ -42,12 +42,12 @@ args = parser.parse_args()
 # 	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
 # )
 
-# UNet + ResNet
-model = UNet(
-    backbone="resnet18",
-    num_classes=2,
-    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-)
+# # UNet + ResNet
+# model = UNet(
+#     backbone="resnet18",
+#     num_classes=2,
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+# )
 
 # # DeepLabV3+
 # model = DeepLab(
@@ -64,6 +64,13 @@ model = UNet(
 #     num_classes=2,
 #     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 # )
+
+# PSPNet
+model = PSPNet(
+    backbone='resnet18',
+    num_classes=2,
+    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+)
 
 
 #------------------------------------------------------------------------------
@@ -82,11 +89,11 @@ if args.use_cuda:
     input = input.cuda()
 
 for _ in range(10):
-    _ = model(input)
+    model(input)
 
 start_time = time()
 for _ in range(args.n_measures):
-    _ = model(input)
+    model(input)
 finish_time = time()
 
 if args.use_cuda:
