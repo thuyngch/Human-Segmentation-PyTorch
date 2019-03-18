@@ -58,7 +58,7 @@ class PyramidPoolingModule(nn.Module):
 		for bin_size in self.pyramids:
 			x = F.adaptive_avg_pool2d(input, output_size=bin_size)
 			x = F.interpolate(x, size=(height, width), mode='bilinear', align_corners=True)
-			feat += x
+			feat  = feat + x
 		return feat
 
 
@@ -162,7 +162,7 @@ class ICNet(BaseModel):
 		if self.training:
 			# Cascade Feature Fusion
 			x_cff_24, x_24_cls = self.cff_24(x_sub4, x_sub2)
-			x_cff_12, x_12_cls = self.cvv_12(x_cff_24, x_sub1)
+			x_cff_12, x_12_cls = self.cff_12(x_cff_24, x_sub1)
 
 			# Classification
 			x_cff_12 = F.interpolate(x_cff_12, size=get_resampling_size(x_cff_12, up_factor=2), mode='bilinear', align_corners=True)

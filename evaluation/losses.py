@@ -63,3 +63,32 @@ def custom_bisenet_loss(logits, targets):
 		return main_loss + os16_loss + os32_loss
 	else:
 		return ce_loss(logits, targets)
+
+
+#------------------------------------------------------------------------------
+#   Custom loss for ICNet
+#------------------------------------------------------------------------------
+def custom_icnet_loss(logits, targets):
+	"""
+	logits: (torch.float32)
+		[train_mode] (x_124_cls, x_12_cls, x_24_cls) of shape
+						(N, C, H/4, W/4), (N, C, H/8, W/8), (N, C, H/16, W/16)
+
+		[valid_mode] x_124_cls of shape (N, C, H, W)
+
+	targets: (torch.float32) shape (N, H, W), value {0,1,...,C-1}
+	"""
+	if type(logits)==tuple:
+		with torch.no_grad():
+			targets = torch.unsqueeze(targets, dim=1)
+			target1 = F.interpolate(targets, size=logits[0].shape[-2:], mode='bilinear', align_corners=True)[:,0,...]
+			target2 = F.interpolate(targets, size=logits[1].shape[-2:], mode='bilinear', align_corners=True)[:,0,...]
+			target3 = F.interpolate(targets, size=logits[2].shape[-2:], mode='bilinear', align_corners=True)[:,0,...]
+
+		loss1 = ce_loss(logits[0], target1)
+		loss2 = ce_loss(logits[1], target2)
+		loss3 = ce_loss(logits[2], target3)
+		return loss1 + 0.4*loss2 + 0.16*loss3
+
+	else:
+		return ce_loss(logits, targets)
