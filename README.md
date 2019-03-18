@@ -1,5 +1,5 @@
-# Human-Segmentation-PyTorch
-Human segmentation using Deep Learning, implemented in PyTorch
+# Semantic-Segmentation-PyTorch
+Semantic segmentation models and training code, implemented in PyTorch
 
 ## Supported networks
 * [UNet](https://arxiv.org/abs/1505.04597): backbones [MobileNetV2](https://arxiv.org/abs/1801.04381) (all aphas and expansions), [ResNetV1](https://arxiv.org/abs/1512.03385) (all num_layers)
@@ -13,6 +13,7 @@ python measure_model.py
 ```
 
 ## Dataset
+**Human/Background**
 * [Automatic Portrait Segmentation for Image Stylization](http://xiaoyongshen.me/webpage_portrait/index.html): 1800 images
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
 
