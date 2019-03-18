@@ -6,6 +6,7 @@ Semantic segmentation models, training, and inference code, implemented in PyTor
 * [DeepLab3+](https://arxiv.org/abs/1802.02611): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18,34,50,101), [VGG16_bn](https://arxiv.org/abs/1409.1556)
 * [BiSeNet](https://arxiv.org/abs/1808.00897): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18)
 * [PSPNet](https://arxiv.org/abs/1612.01105): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18,34,50,101)
+* [ICNet](https://arxiv.org/abs/1704.08545): backbones [ResNetV1](https://arxiv.org/abs/1512.03385) (num_layers=18,34,50,101)
 
 To assess architecture, memory, forward time (in either cpu or gpu), numper of parameters, and number of FLOPs of a network, use this command:
 ```
