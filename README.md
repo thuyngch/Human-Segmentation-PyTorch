@@ -1,5 +1,5 @@
 # Semantic-Segmentation-PyTorch
-Semantic segmentation models and training code, implemented in PyTorch
+Semantic segmentation models, training, and inference code, implemented in PyTorch
 
 ## Supported networks
 * [UNet](https://arxiv.org/abs/1505.04597): backbones [MobileNetV2](https://arxiv.org/abs/1801.04381) (all aphas and expansions), [ResNetV1](https://arxiv.org/abs/1512.03385) (all num_layers)
