@@ -138,8 +138,8 @@ class SegmentationDataset(Dataset):
 			image, label = transforms.random_crop(image, label, self.crop_range)
 
 		# Resize: the greater side is refered, the rest is padded
-		image = transforms.resize_image(image, expected_size=self.resize, pad_value=self.padding_value)
-		label = transforms.resize_image(label, expected_size=self.resize, pad_value=self.padding_value)
+		image = transforms.resize_image(image, expected_size=self.resize, pad_value=self.padding_value, mode=cv2.INTER_LINEAR)
+		label = transforms.resize_image(label, expected_size=self.resize, pad_value=self.padding_value, mode=cv2.INTER_NEAREST)
 
 		# Preprocess image
 		if self.normalize:

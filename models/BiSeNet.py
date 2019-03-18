@@ -48,7 +48,7 @@ class SpatialPath(nn.Module):
 class Attention(nn.Module):
 	def __init__(self, in_channels):
 		super(Attention, self).__init__()
-		self.conv = nn.Conv2d(in_channels, in_channels, kernel_size=1, bias=True)
+		self.conv = nn.Conv2d(in_channels, in_channels, kernel_size=1, bias=False)
 
 	def forward(self, input):
 		x = F.adaptive_avg_pool2d(input, (1,1))
@@ -66,8 +66,8 @@ class Fusion(nn.Module):
 		super(Fusion, self).__init__()
 		in_channels = in_channels1 + in_channels2
 		self.convblock = ConvBlock(in_channels, num_classes, kernel_size, padding=1)
-		self.conv1 = nn.Conv2d(num_classes, num_classes, kernel_size=1, bias=True)
-		self.conv2 = nn.Conv2d(num_classes, num_classes, kernel_size=1, bias=True)
+		self.conv1 = nn.Conv2d(num_classes, num_classes, kernel_size=1, bias=False)
+		self.conv2 = nn.Conv2d(num_classes, num_classes, kernel_size=1, bias=False)
 
 	def forward(self, input1, input2):
 		input = torch.cat([input1, input2], dim=1)

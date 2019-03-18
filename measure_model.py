@@ -8,7 +8,7 @@ import torch, argparse
 from time import time
 from torchsummary import summary
 
-from models import UNet, DeepLab, BiSeNet, PSPNet
+from models import UNet, DeepLabV3Plus, BiSeNet, PSPNet, ICNet
 from utils.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
 
 
@@ -17,13 +17,13 @@ from utils.flops_counter import add_flops_counting_methods, flops_to_string, get
 #------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Arguments for the script")
 
-parser.add_argument('--use_cuda', action='store_true', default=True,
+parser.add_argument('--use_cuda', action='store_true', default=False,
                     help='Use GPU acceleration')
 
 parser.add_argument('--img_layers', type=int, default=3,
                     help='Number of image layers')
 
-parser.add_argument('--input_sz', type=int, default=224,
+parser.add_argument('--input_sz', type=int, default=225,
                     help='Size of the input')
 
 parser.add_argument('--n_measures', type=int, default=10,
@@ -50,7 +50,7 @@ args = parser.parse_args()
 # )
 
 # # DeepLabV3+
-# model = DeepLab(
+# model = DeepLabV3Plus(
 #     backbone='resnet18',
 #     output_stride=16,
 #     num_classes=2,
@@ -65,8 +65,15 @@ args = parser.parse_args()
 #     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 # )
 
-# PSPNet
-model = PSPNet(
+# # PSPNet
+# model = PSPNet(
+#     backbone='resnet18',
+#     num_classes=2,
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+# )
+
+# ICNet
+model = ICNet(
     backbone='resnet18',
     num_classes=2,
     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",

@@ -104,7 +104,7 @@ def random_noise(image, std):
 #------------------------------------------------------------------------------
 #  Resize image
 #------------------------------------------------------------------------------
-def resize_image(image, expected_size, pad_value, ret_params=False):
+def resize_image(image, expected_size, pad_value, ret_params=False, mode=cv2.INTER_LINEAR):
 	"""
 	image (ndarray) with either shape of [H,W,3] for RGB or [H,W] for grayscale.
 	Padding is added so that the content of image is in the center.
@@ -113,7 +113,7 @@ def resize_image(image, expected_size, pad_value, ret_params=False):
 	if w>h:
 		w_new = int(expected_size)
 		h_new = int(h * w_new / w)
-		image = cv2.resize(image, (w_new, h_new), interpolation=cv2.INTER_LINEAR)
+		image = cv2.resize(image, (w_new, h_new), interpolation=mode)
 
 		pad_up = (w_new - h_new) // 2
 		pad_down = w_new - h_new - pad_up
@@ -138,7 +138,7 @@ def resize_image(image, expected_size, pad_value, ret_params=False):
 	elif w<h:
 		h_new = int(expected_size)
 		w_new = int(w * h_new / h)
-		image = cv2.resize(image, (w_new, h_new), interpolation=cv2.INTER_LINEAR)
+		image = cv2.resize(image, (w_new, h_new), interpolation=mode)
 
 		pad_left = (h_new - w_new) // 2
 		pad_right = h_new - w_new - pad_left
@@ -161,7 +161,7 @@ def resize_image(image, expected_size, pad_value, ret_params=False):
 			return image
 
 	else:
-		image = cv2.resize(image, (expected_size, expected_size), interpolation=cv2.INTER_LINEAR)
+		image = cv2.resize(image, (expected_size, expected_size), interpolation=mode)
 		if ret_params:
 			return image, 0, 0, h_new, w_new
 		else:
