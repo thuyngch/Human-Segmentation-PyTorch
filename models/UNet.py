@@ -5,9 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from functools import reduce
-from base import BaseModel
 
-# Backbones
+from base import BaseModel
 from models.backbonds import MobileNetV2, ResNet
 
 
@@ -37,7 +36,7 @@ class UNet(BaseModel):
 			alpha = 1.0
 			expansion = 6
 			self.backbone = MobileNetV2.MobileNetV2(alpha=alpha, expansion=expansion, num_classes=None)
-			self.low_feat_names = ['stage4', 'stage3', 'stage2', 'stage1']
+			self._run_backbone = self._run_backbone_mobilenetv2
 			# Stage 1
 			channel1 = MobileNetV2._make_divisible(int(96*alpha), 8)
 			block_unit = MobileNetV2.InvertedResidual(2*channel1, channel1, 1, expansion)
@@ -68,7 +67,7 @@ class UNet(BaseModel):
 				raise NotImplementedError
 			filters = 64
 			self.backbone = ResNet.get_resnet(n_layers, num_classes=None)
-			self.low_feat_names = ['stage4', 'stage3', 'stage2', 'stage1']
+			self._run_backbone = self._run_backbone_resnet
 			block = ResNet.BasicBlock if (n_layers==18 or n_layers==34) else ResNet.Bottleneck
 			# Stage 1
 			last_channel = 8*filters if (n_layers==18 or n_layers==34) else 32*filters
@@ -96,8 +95,8 @@ class UNet(BaseModel):
 			raise NotImplementedError
 
 		self.conv_last = nn.Sequential(
-			nn.Conv2d(channel4, 3, kernel_size=1),
-			nn.Conv2d(3, num_classes, kernel_size=1),
+			nn.Conv2d(channel4, 3, kernel_size=3, padding=1),
+			nn.Conv2d(3, num_classes, kernel_size=3, padding=1),
 		)
 
 		# Initialize
@@ -107,14 +106,50 @@ class UNet(BaseModel):
 
 
 	def forward(self, input):
-		x5, x4, x3, x2, x1 = self.backbone(input, feature_names=self.low_feat_names)
+		x1, x2, x3, x4, x5 = self._run_backbone(input)
 		x = self.decoder1(x5, x4)
 		x = self.decoder2(x, x3)
 		x = self.decoder3(x, x2)
 		x = self.decoder4(x, x1)
 		x = self.conv_last(x)
-		x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=True)
+		x = F.interpolate(x, size=input.shape[-2:], mode='bilinear', align_corners=True)
 		return x
+
+
+	def _run_backbone_mobilenetv2(self, input):
+		x = input
+		# Stage1
+		x = reduce(lambda x, n: self.features[n](x), list(range(0,2)), x)
+		x1 = x
+		# Stage2
+		x = reduce(lambda x, n: self.features[n](x), list(range(2,4)), x)
+		x2 = x
+		# Stage3
+		x = reduce(lambda x, n: self.features[n](x), list(range(4,7)), x)
+		x3 = x
+		# Stage4
+		x = reduce(lambda x, n: self.features[n](x), list(range(7,14)), x)
+		x4 = x
+		# Stage5
+		x5 = reduce(lambda x, n: self.features[n](x), list(range(14,19)), x)
+		return x1, x2, x3, x4, x5
+
+
+	def _run_backbone_resnet(self, input):
+		# Stage1
+		x1 = self.backbone.conv1(input)
+		x1 = self.backbone.bn1(x1)
+		x1 = self.backbone.relu(x1)
+		# Stage2
+		x2 = self.backbone.maxpool(x1)
+		x2 = self.backbone.layer1(x2)
+		# Stage3
+		x3 = self.backbone.layer2(x2)
+		# Stage4
+		x4 = self.backbone.layer3(x3)
+		# Stage5
+		x5 = self.backbone.layer4(x4)
+		return x1, x2, x3, x4, x5
 
 
 	def _init_weights(self):

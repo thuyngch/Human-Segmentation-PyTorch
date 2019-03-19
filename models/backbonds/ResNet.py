@@ -139,35 +139,32 @@ class ResNet(nn.Module):
 		self._init_weights()
 
 
-	def forward(self, x, feature_names=None):
-		low_features = {}
-
+	def forward(self, x):
+		# Stage1
 		x = self.conv1(x)
 		x = self.bn1(x)
 		x = self.relu(x)
-		low_features["stage1"] = x
 
+		# Stage2
 		x = self.maxpool(x)
 		x = self.layer1(x)
-		low_features["stage2"] = x
-		x = self.layer2(x)
-		low_features["stage3"] = x
-		x = self.layer3(x)
-		low_features["stage4"] = x
-		x = self.layer4(x)
-		low_features["stage5"] = x
 
+		# Stage3
+		x = self.layer2(x)
+
+		# Stage4
+		x = self.layer3(x)
+
+		# Stage5
+		x = self.layer4(x)
+
+		# Classification
 		if self.num_classes is not None:
 			x = x.mean(dim=(2,3))
 			x = self.fc(x)
 
-		if feature_names is not None:
-			if type(feature_names)==str:
-				return x, low_features[feature_names]
-			elif type(feature_names)==list:
-				return tuple([x] + [low_features[name] for name in feature_names])
-		else:
-			return x
+		# Output
+		return x
 
 
 	def _make_layer(self, block, planes, n_layers, stride=1, dilation=1, grids=None):

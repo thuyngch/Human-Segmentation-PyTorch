@@ -20,10 +20,7 @@ parser = argparse.ArgumentParser(description="Arguments for the script")
 parser.add_argument('--use_cuda', action='store_true', default=False,
                     help='Use GPU acceleration')
 
-parser.add_argument('--img_layers', type=int, default=3,
-                    help='Number of image layers')
-
-parser.add_argument('--input_sz', type=int, default=225,
+parser.add_argument('--input_sz', type=int, default=224,
                     help='Size of the input')
 
 parser.add_argument('--n_measures', type=int, default=10,
@@ -42,12 +39,12 @@ args = parser.parse_args()
 # 	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
 # )
 
-# # UNet + ResNet
-# model = UNet(
-#     backbone="resnet18",
-#     num_classes=2,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-# )
+# UNet + ResNet
+model = UNet(
+    backbone="resnet18",
+    num_classes=2,
+    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+)
 
 # # DeepLabV3+
 # model = DeepLabV3Plus(
@@ -72,25 +69,25 @@ args = parser.parse_args()
 #     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
 # )
 
-# ICNet
-model = ICNet(
-    backbone='resnet18',
-    num_classes=2,
-    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-)
+# # ICNet
+# model = ICNet(
+#     backbone='resnet18',
+#     num_classes=2,
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+# )
 
 
 #------------------------------------------------------------------------------
 #   Summary network
 #------------------------------------------------------------------------------
 model.eval()
-summary(model, input_size=(args.img_layers, args.input_sz, args.input_sz), device='cpu')
+summary(model, input_size=(3, args.input_sz, args.input_sz), device='cpu')
 
 
 #------------------------------------------------------------------------------
 #   Measure time
 #------------------------------------------------------------------------------
-input = torch.randn([1, args.img_layers, args.input_sz, args.input_sz], dtype=torch.float)
+input = torch.randn([1, 3, args.input_sz, args.input_sz], dtype=torch.float)
 if args.use_cuda:
     model = model.cuda()
     input = input.cuda()

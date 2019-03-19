@@ -132,30 +132,28 @@ class MobileNetV2(nn.Module):
 
 
 	def forward(self, x, feature_names=None):
-		low_features = {}
-
+		# Stage1
 		x = reduce(lambda x, n: self.features[n](x), list(range(0,2)), x)
-		low_features["stage1"] = x
-		x = reduce(lambda x, n: self.features[n](x), list(range(2,4)), x)
-		low_features["stage2"] = x
-		x = reduce(lambda x, n: self.features[n](x), list(range(4,7)), x)
-		low_features["stage3"] = x
-		x = reduce(lambda x, n: self.features[n](x), list(range(7,14)), x)
-		low_features["stage4"] = x
-		x = reduce(lambda x, n: self.features[n](x), list(range(14,19)), x)
-		low_features["stage5"] = x
 
+		# Stage2
+		x = reduce(lambda x, n: self.features[n](x), list(range(2,4)), x)
+
+		# Stage3
+		x = reduce(lambda x, n: self.features[n](x), list(range(4,7)), x)
+
+		# Stage4
+		x = reduce(lambda x, n: self.features[n](x), list(range(7,14)), x)
+
+		# Stage5
+		x = reduce(lambda x, n: self.features[n](x), list(range(14,19)), x)
+
+		# Classification
 		if self.num_classes is not None:
 			x = x.mean(dim=(2,3))
 			x = self.classifier(x)
-
-		if feature_names is not None:
-			if type(feature_names)==str:
-				return x, low_features[feature_names]
-			elif type(feature_names)==list or type(feature_names)==tuple:
-				return tuple([x] + [low_features[name] for name in feature_names])
-		else:
-			return x
+			
+		# Output
+		return x
 
 
 	def _load_pretrained_model(self, pretrained_file):

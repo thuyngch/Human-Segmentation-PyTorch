@@ -5,89 +5,83 @@
     "arch": {
         "type": "UNet",
         "args": {
-            "n_classes": 1,
-            "img_layers": 3,
-            "backbone": "MobileNetV2",
-            "backbone_args":{
-                "input_sz": 224,
-                "alpha": 1.0,
-                "expansion": 6,
-                "pretrained": "/media/antiaegis/storing/PyTorch-pretrained/mobilenet2.pth"
-            }
+            "backbone": "resnet18",
+            "num_classes": 2,
+            "pretrained_backbone": "/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth"
         }
     },
 
-    "train_loader": {
-        "type": "SegmentationDataLoader",
-        "args":{
-            "pairs_file": "dataset/train_pairs.txt",
-            "color_channel": "RGB",
-            "resize": 224,
-            "padding_value": 0,
-            "is_training": true,
-            "noise_std": 3,
-            "crop_range": [0.75, 1.0],
-            "flip_hor": 0.5,
-            "rotate": 0.0,
-            "angle": 0,
-            "normalize": true,
-            "one_hot": false,
-            "shuffle": true,
-            "batch_size": 16,
-            "n_workers": 8,
-            "pin_memory": true
-        }
-    },
+	"train_loader": {
+		"type": "SegmentationDataLoader",
+		"args":{
+			"pairs_file": "dataset/antiaegis_train_mask.txt",
+			"color_channel": "RGB",
+			"resize": 224,
+			"padding_value": 0,
+			"is_training": true,
+			"noise_std": 0,
+			"crop_range": [1.0, 1.0],
+			"flip_hor": 0.5,
+			"rotate": 0.0,
+			"angle": 10,
+			"normalize": true,
+			"one_hot": false,
+			"shuffle": true,
+			"batch_size": 32,
+			"n_workers": 8,
+			"pin_memory": true
+		}
+	},
 
-    "valid_loader": {
-        "type": "SegmentationDataLoader",
-        "args":{
-            "pairs_file": "dataset/valid_pairs.txt",
-            "color_channel": "RGB",
-            "resize": 224,
-            "padding_value": 0,
-            "is_training": false,
-            "normalize": true,
-            "one_hot": false,
-            "shuffle": false,
-            "batch_size": 16,
-            "n_workers": 8,
-            "pin_memory": true
-        }
-    },
+	"valid_loader": {
+		"type": "SegmentationDataLoader",
+		"args":{
+			"pairs_file": "dataset/antiaegis_valid_mask.txt",
+			"color_channel": "RGB",
+			"resize": 224,
+			"padding_value": 0,
+			"is_training": false,
+			"normalize": true,
+			"one_hot": false,
+			"shuffle": false,
+			"batch_size": 32,
+			"n_workers": 8,
+			"pin_memory": true
+		}
+	},
 
-    "optimizer": {
-        "type": "Adam",
-        "args":{
-            "lr": 1e-4,
-            "weight_decay": 1e-8
-        }
-    },
+	"optimizer": {
+		"type": "Adam",
+		"args":{
+			"lr": 1e-3,
+			"weight_decay": 1e-8
+		}
+	},
 
-    "loss": "dice_loss_with_sigmoid",
-    "metrics": [
-        "iou_with_sigmoid"
-    ],
+	"loss": "dice_loss",
+	"metrics": [
+		"miou"
+	],
 
-    "lr_scheduler": {
-        "type":"StepLR",
-        "args":{
-            "step_size": 100,
-            "gamma": 1.0
-        }
-    },
+	"lr_scheduler": {
+		"type":"StepLR",
+		"args":{
+			"step_size": 100,
+			"gamma": 1.0
+		}
+	},
 
-    "trainer": {
-        "epochs": 200,
-        "save_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/ZaloHumanSeg/PyTorch",
-        "save_freq": 1,
-        "verbosity": 2,
-        "monitor": "valid_loss",
-        "monitor_mode": "min"
-    },
+	"trainer": {
+		"epochs": 200,
+		"save_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg/PyTorch",
+		"save_freq": 1,
+		"verbosity": 2,
+		"monitor": "valid_loss",
+		"monitor_mode": "min"
+	},
 
-    "visualization":{
-        "tensorboardX": true,
-        "log_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/ZaloHumanSeg/PyTorch"
-    }
+	"visualization":{
+		"tensorboardX": true,
+		"log_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg/PyTorch"
+	}
 }
