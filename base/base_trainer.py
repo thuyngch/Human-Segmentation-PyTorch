@@ -180,12 +180,12 @@ class BaseTrainer:
 								'This may yield an exception while state_dict is being loaded.')
 		self.model.load_state_dict(checkpoint['state_dict'], strict=True)
 
-		# load optimizer state from checkpoint only when optimizer type is not changed. 
-		if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
-			self.logger.warning('Warning: Optimizer type given in config file is different from that of checkpoint. ' + \
-								'Optimizer parameters not being resumed.')
-		else:
-			self.optimizer.load_state_dict(checkpoint['optimizer'])
+		# # load optimizer state from checkpoint only when optimizer type is not changed. 
+		# if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
+		# 	self.logger.warning('Warning: Optimizer type given in config file is different from that of checkpoint. ' + \
+		# 						'Optimizer parameters not being resumed.')
+		# else:
+		# 	self.optimizer.load_state_dict(checkpoint['optimizer'])
 	
 		self.train_logger = checkpoint['logger']
 		self.logger.info("[base_trainer] Checkpoint '{}' (epoch {}) loaded".format(resume_path, self.start_epoch-1))

@@ -11,17 +11,6 @@ from utils import utils
 
 
 #------------------------------------------------------------------------------
-#  Draw foreground pasted into background
-#------------------------------------------------------------------------------
-def draw_fore_to_back(image, mask, background, kernel_sz=13, sigma=0):
-	mask_filtered = cv2.GaussianBlur(mask, (kernel_sz, kernel_sz), sigma)
-	mask_filtered = np.expand_dims(mask_filtered, axis=2)
-	mask_filtered = np.tile(mask_filtered, (1,1,3))
-	image_alpha = image*mask_filtered + background*(1-mask_filtered)
-	return image_alpha.astype(np.uint8)
-
-
-#------------------------------------------------------------------------------
 #   Argument parsing
 #------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Arguments for the script")
@@ -32,7 +21,7 @@ parser.add_argument('--use_cuda', action='store_true', default=True,
 parser.add_argument('--bg', type=str, default=None,
                     help='Path to the background image file')
 
-parser.add_argument('--input_sz', type=int, default=224,
+parser.add_argument('--input_sz', type=int, default=320,
                     help='Input size')
 
 parser.add_argument('--checkpoint', type=str, default="model_best.pth",
@@ -67,14 +56,9 @@ else:
 #------------------------------------------------------------------------------
 # Setup model
 model = UNet(
-    num_classes=1,
-    img_layers=3,
-    backbone="ResNet",
-    backbone_args={
-        "n_layers": 18,
-        "input_sz": args.input_sz,
-        "pretrained": None,
-    }
+    backbone="resnet18",
+    num_classes=2,
+	pretrained_backbone=None
 )
 trained_dict = torch.load(args.checkpoint, map_location="cpu")['state_dict']
 model.load_state_dict(trained_dict, strict=False)
@@ -101,14 +85,14 @@ while(cap.isOpened()):
 			mask = model(X.cuda())
 			mask = mask[..., pad_up: pad_up+h_new, pad_left: pad_left+w_new]
 			mask = F.interpolate(mask, size=(h,w), mode='bilinear', align_corners=True)
-			mask = torch.sigmoid(mask)
-			mask = mask[0,0,...].cpu().numpy()
+			mask = F.softmax(mask, dim=1)
+			mask = mask[0,1,...].cpu().numpy()
 		else:
 			mask = model(X)
 			mask = mask[..., pad_up: pad_up+h_new, pad_left: pad_left+w_new]
 			mask = F.interpolate(mask, size=(h,w), mode='bilinear', align_corners=True)
-			mask = torch.sigmoid(mask)
-			mask = mask[0,0,...].numpy()
+			mask = F.softmax(mask, dim=1)
+			mask = mask[0,1,...].numpy()
 	predict_time = time()
 
 	# Draw result

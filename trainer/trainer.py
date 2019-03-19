@@ -88,10 +88,13 @@ class Trainer(BaseTrainer):
 			if (batch_idx==n_iter-2) and (self.verbosity>=2):
 				self.writer_train.add_image('train/input', make_grid(data[:,:3,:,:].cpu(), nrow=4, normalize=True))
 				self.writer_train.add_image('train/label', make_grid(target.unsqueeze(1).cpu(), nrow=4, normalize=True))
-				# self.writer_train.add_image('train/output', make_grid(output.cpu(), nrow=4, normalize=True))
-				self.writer_train.add_image('train/output', make_grid(F.softmax(output[0], dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+				if type(output)==tuple or type(output)==list:
+					self.writer_train.add_image('train/output', make_grid(F.softmax(output[0], dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+				else:
+					# self.writer_train.add_image('train/output', make_grid(output.cpu(), nrow=4, normalize=True))
+					self.writer_train.add_image('train/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
 
-			# poly_lr_scheduler(self.optimizer, self.init_lr, curr_iter, self.max_iter, power=0.9)
+			poly_lr_scheduler(self.optimizer, self.init_lr, curr_iter, self.max_iter, power=0.9)
 
 		# Record log
 		total_loss /= len(self.data_loader)
@@ -151,8 +154,11 @@ class Trainer(BaseTrainer):
 				if (batch_idx==n_iter-2) and(self.verbosity>=2):
 					self.writer_valid.add_image('valid/input', make_grid(data[:,:3,:,:].cpu(), nrow=4, normalize=True))
 					self.writer_valid.add_image('valid/label', make_grid(target.unsqueeze(1).cpu(), nrow=4, normalize=True))
-					# self.writer_valid.add_image('valid/output', make_grid(output.cpu(), nrow=4, normalize=True))
-					self.writer_valid.add_image('valid/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+					if type(output)==tuple or type(output)==list:
+						self.writer_valid.add_image('valid/output', make_grid(F.softmax(output[0], dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
+					else:
+						# self.writer_valid.add_image('valid/output', make_grid(output.cpu(), nrow=4, normalize=True))
+						self.writer_valid.add_image('valid/output', make_grid(F.softmax(output, dim=1)[:,1:2,:,:].cpu(), nrow=4, normalize=True))
 
 			# Record log
 			total_val_loss /= len(self.valid_data_loader)

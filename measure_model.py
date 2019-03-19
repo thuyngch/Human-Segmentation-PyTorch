@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(description="Arguments for the script")
 parser.add_argument('--use_cuda', action='store_true', default=False,
                     help='Use GPU acceleration')
 
-parser.add_argument('--input_sz', type=int, default=224,
+parser.add_argument('--input_sz', type=int, default=320,
                     help='Size of the input')
 
 parser.add_argument('--n_measures', type=int, default=10,
