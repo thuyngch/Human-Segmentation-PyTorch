@@ -32,19 +32,19 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 #	Create model
 #------------------------------------------------------------------------------
-# # UNet + MobileNetV2
-# model = UNet(
-# 	backbone="mobilenetv2",
-# 	num_classes=2,
-# 	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
-# )
-
-# UNet + ResNet
+# UNet + MobileNetV2
 model = UNet(
-    backbone="resnet18",
-    num_classes=2,
-    pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+	backbone="mobilenetv2",
+	num_classes=2,
+	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
 )
+
+# # UNet + ResNet
+# model = UNet(
+#     backbone="resnet18",
+#     num_classes=2,
+#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+# )
 
 # # DeepLabV3+
 # model = DeepLabV3Plus(

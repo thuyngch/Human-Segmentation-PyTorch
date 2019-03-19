@@ -119,19 +119,19 @@ class UNet(BaseModel):
 	def _run_backbone_mobilenetv2(self, input):
 		x = input
 		# Stage1
-		x = reduce(lambda x, n: self.features[n](x), list(range(0,2)), x)
+		x = reduce(lambda x, n: self.backbone.features[n](x), list(range(0,2)), x)
 		x1 = x
 		# Stage2
-		x = reduce(lambda x, n: self.features[n](x), list(range(2,4)), x)
+		x = reduce(lambda x, n: self.backbone.features[n](x), list(range(2,4)), x)
 		x2 = x
 		# Stage3
-		x = reduce(lambda x, n: self.features[n](x), list(range(4,7)), x)
+		x = reduce(lambda x, n: self.backbone.features[n](x), list(range(4,7)), x)
 		x3 = x
 		# Stage4
-		x = reduce(lambda x, n: self.features[n](x), list(range(7,14)), x)
+		x = reduce(lambda x, n: self.backbone.features[n](x), list(range(7,14)), x)
 		x4 = x
 		# Stage5
-		x5 = reduce(lambda x, n: self.features[n](x), list(range(14,19)), x)
+		x5 = reduce(lambda x, n: self.backbone.features[n](x), list(range(14,19)), x)
 		return x1, x2, x3, x4, x5
 
 

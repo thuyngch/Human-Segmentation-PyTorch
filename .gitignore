@@ -105,4 +105,3 @@ venv.bak/
 
 # local
 .vscode/
-dataset/*.txt
