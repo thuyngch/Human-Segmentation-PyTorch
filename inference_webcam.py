@@ -56,7 +56,7 @@ else:
 #------------------------------------------------------------------------------
 # Setup model
 model = UNet(
-    backbone="resnet18",
+    backbone="mobilenetv2",
     num_classes=2,
 	pretrained_backbone=None
 )

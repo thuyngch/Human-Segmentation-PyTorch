@@ -34,7 +34,7 @@ parser.add_argument('--checkpoint', type=str, default="model_best.pth",
 parser.add_argument('--video', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/video04.MOV",
                     help='Path to the input video')
 
-parser.add_argument('--output', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/PyTorch/video04-ResNet18.MOV",
+parser.add_argument('--output', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/PyTorch/video04-mobilenetv2.MOV",
                     help='Path to the output video')
 
 args = parser.parse_args()
@@ -70,7 +70,7 @@ else:
 #	Create model and load weights
 #------------------------------------------------------------------------------
 model = UNet(
-    backbone="resnet18",
+    backbone="mobilenetv2",
     num_classes=2,
 	pretrained_backbone=None
 )
