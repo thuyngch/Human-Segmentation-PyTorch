@@ -36,3 +36,12 @@ where *config/config_DeepLab.json* is the configuration file which contains netw
 python train.py --config config/config_DeepLab.json --device 0 --resume path_to_checkpoint/model_best.pth
 ```
 * One can open tensorboard to monitor the training progress by enabling the visualization mode in the configuration file.
+
+## Inference
+There are two modes of inference: [video](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch/blob/master/inference_video.py) and [webcam](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch/blob/master/inference_webcam.py).
+```
+python inference_video.py --watch --use_cuda --checkpoint path_to_checkpoint/model_best.pth
+```
+```
+python inference_webcam.py --use_cuda --checkpoint path_to_checkpoint/model_best.pth
+```
