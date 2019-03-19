@@ -47,6 +47,7 @@ python inference_webcam.py --use_cuda --checkpoint path_to_checkpoint/model_best
 ## Result
 * Networks are trained on a combined dataset from the two mentioned datasets above. There are 6627 training and 737 testing images.
 * Input size of model is set to 320.
+* The CPU and GPU time is the averaged inference time of 10 runs (there are also 10 warm-up runs before measuring) with batch size 1.
 * The mIoU is measured from the testing phase.
 * Hardware configuration for benchmarking:
 ```
