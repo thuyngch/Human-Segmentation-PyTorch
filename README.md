@@ -57,4 +57,5 @@ GPU: GeForce GTX 1050 Mobile, CUDA 9.0
 
 | Model | Parameters | FLOPs | CPU time | GPU time | mIoU |
 |:-:|:-:|:-:|:-:|:-:|:-:|
+| UNet_MobileNetV2 (alpha=1.0, expansion=6) | 4.7M | 1.3G | 167ms | 16.9ms | --- |
 | UNet_ResNet18 | 16.6M | 9.1G | 165ms | 21ms | 90.09% |
