@@ -14,7 +14,7 @@ python measure_model.py
 ```
 
 ## Dataset
-**Human/Background**
+**Portrait Segmentation (Human/Background)**
 * [Automatic Portrait Segmentation for Image Stylization](http://xiaoyongshen.me/webpage_portrait/index.html): 1800 images
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
 
