@@ -41,7 +41,19 @@ python train.py --config config/config_DeepLab.json --device 0 --resume path_to_
 There are two modes of inference: [video](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch/blob/master/inference_video.py) and [webcam](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch/blob/master/inference_webcam.py).
 ```
 python inference_video.py --watch --use_cuda --checkpoint path_to_checkpoint/model_best.pth
-```
-```
 python inference_webcam.py --use_cuda --checkpoint path_to_checkpoint/model_best.pth
 ```
+
+## Result
+* Networks are trained on a combined dataset from the two mentioned datasets above. There are 6627 training and 737 testing images.
+* Input size of model is set to 320.
+* The mIoU is measured from the testing phase.
+* Hardware configuration for benchmarking:
+```
+CPU: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+GPU: GeForce GTX 1050 Mobile, CUDA 9.0
+```
+
+| Model | Parameters | FLOPs | CPU time | GPU time | mIoU |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| UNet_ResNet18 | 16.6M | 9.1G | 165ms | 21ms | 90.09% |
