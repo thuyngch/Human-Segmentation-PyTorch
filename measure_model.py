@@ -2,7 +2,7 @@
 #	Libraries
 #------------------------------------------------------------------------------
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
 import torch, argparse
 from time import time
@@ -32,18 +32,18 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 #	Create model
 #------------------------------------------------------------------------------
-# UNet + MobileNetV2
-model = UNet(
-	backbone="mobilenetv2",
-	num_classes=2,
-	pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth",
-)
+# # UNet + MobileNetV2
+# model = UNet(
+# 	backbone="mobilenetv2",
+# 	num_classes=2,
+    # pretrained_backbone=None,
+# )
 
 # # UNet + ResNet
 # model = UNet(
 #     backbone="resnet18",
 #     num_classes=2,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+#     pretrained_backbone=None,
 # )
 
 # # DeepLabV3+
@@ -51,30 +51,29 @@ model = UNet(
 #     backbone='resnet18',
 #     output_stride=16,
 #     num_classes=2,
-#     freeze_bn=False,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+#     pretrained_backbone=None,
 # )
 
 # # BiSeNet
 # model = BiSeNet(
 #     backbone='resnet18',
 #     num_classes=2,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+#     pretrained_backbone=None,
 # )
 
 # # PSPNet
 # model = PSPNet(
 #     backbone='resnet18',
 #     num_classes=2,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
+#     pretrained_backbone=None,
 # )
 
-# # ICNet
-# model = ICNet(
-#     backbone='resnet18',
-#     num_classes=2,
-#     pretrained_backbone="/media/antiaegis/storing/PyTorch-pretrained/resnet18.pth",
-# )
+# ICNet
+model = ICNet(
+    backbone='resnet18',
+    num_classes=2,
+    pretrained_backbone=None,
+)
 
 
 #------------------------------------------------------------------------------

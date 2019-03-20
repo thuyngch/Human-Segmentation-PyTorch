@@ -11,24 +11,6 @@ from models.backbonds import ResNet
 
 
 #------------------------------------------------------------------------------
-#  Get resampling size
-#------------------------------------------------------------------------------
-def get_resampling_size(x, up_factor=1, down_factor=1):
-	ori_h, ori_w = x.shape[2:]
-
-	# shrink (down_factor >= 1)
-	ori_h = (ori_h - 1) / down_factor + 1
-	ori_w = (ori_w - 1) / down_factor + 1
-
-	# zoom (up_factor >= 1)
-	ori_h = ori_h + (ori_h - 1) * (up_factor - 1)
-	ori_w = ori_w + (ori_w - 1) * (up_factor - 1)
-
-	resize_shape = (int(ori_h), int(ori_w))
-	return resize_shape
-
-
-#------------------------------------------------------------------------------
 #  Convolutional block
 #------------------------------------------------------------------------------
 class ConvBlock(nn.Module):
@@ -149,11 +131,11 @@ class ICNet(BaseModel):
 		x_sub1 = self.conv_sub1(input)
 
 		# Sub2
-		x_sub2 = F.interpolate(input, size=get_resampling_size(input, down_factor=2), mode='bilinear', align_corners=True)
+		x_sub2 = F.interpolate(input, scale_factor=0.5, mode='bilinear', align_corners=True)
 		x_sub2 = self._run_backbone_sub2(x_sub2)
 
 		# Sub4
-		x_sub4 = F.interpolate(x_sub2, size=get_resampling_size(x_sub2, down_factor=2), mode='bilinear', align_corners=True)
+		x_sub4 = F.interpolate(x_sub2, scale_factor=0.5, mode='bilinear', align_corners=True)
 		x_sub4 = self._run_backbone_sub4(x_sub4)
 		x_sub4 = self.ppm(x_sub4)
 		x_sub4 = self.conv_sub4_reduce(x_sub4)
@@ -165,7 +147,7 @@ class ICNet(BaseModel):
 			x_cff_12, x_12_cls = self.cff_12(x_cff_24, x_sub1)
 
 			# Classification
-			x_cff_12 = F.interpolate(x_cff_12, size=get_resampling_size(x_cff_12, up_factor=2), mode='bilinear', align_corners=True)
+			x_cff_12 = F.interpolate(x_cff_12, scale_factor=2, mode='bilinear', align_corners=True)
 			x_124_cls = self.conv_cls(x_cff_12)
 			return x_124_cls, x_12_cls, x_24_cls
 
@@ -175,9 +157,9 @@ class ICNet(BaseModel):
 			x_cff_12 = self.cff_12(x_cff_24, x_sub1)
 
 			# Classification
-			x_cff_12 = F.interpolate(x_cff_12, size=get_resampling_size(x_cff_12, up_factor=2), mode='bilinear', align_corners=True)
+			x_cff_12 = F.interpolate(x_cff_12, scale_factor=2, mode='bilinear', align_corners=True)
 			x_124_cls = self.conv_cls(x_cff_12)
-			x_124_cls = F.interpolate(x_124_cls, size=get_resampling_size(x_124_cls, up_factor=4), mode='bilinear', align_corners=True)
+			x_124_cls = F.interpolate(x_124_cls, scale_factor=4, mode='bilinear', align_corners=True)
 			return x_124_cls
 
 

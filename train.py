@@ -63,7 +63,7 @@ if __name__ == '__main__':
 	# Argument parsing
 	parser = argparse.ArgumentParser(description='Train model')
 
-	parser.add_argument('-c', '--config', default=None, type=str,
+	parser.add_argument('-c', '--config', default="config/config_ICNet.json", type=str,
 						   help='config file path (default: None)')
 
 	parser.add_argument('-r', '--resume', default=None, type=str,
