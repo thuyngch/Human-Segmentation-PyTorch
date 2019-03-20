@@ -104,31 +104,34 @@ class Decoder(nn.Module):
 class DeepLabV3Plus(BaseModel):
 	def __init__(self, backbone='resnet50', output_stride=16, num_classes=2, freeze_bn=False, pretrained_backbone=None):
 		super(DeepLabV3Plus, self).__init__()
-		if backbone=='resnet18':
-			self.backbone = ResNet.resnet18(output_stride=output_stride, num_classes=None)
-			self.aspp = ASPP(output_stride, inplanes=512)
-			self.decoder = Decoder(num_classes, low_level_inplanes=64)
-			self.low_feat_names = 'layer1'
-		elif backbone=='resnet34':
-			self.backbone = ResNet.resnet34(output_stride=output_stride, num_classes=None)
-			self.aspp = ASPP(output_stride, inplanes=512)
-			self.decoder = Decoder(num_classes, low_level_inplanes=64)
-			self.low_feat_names = 'layer1'
-		elif backbone=='resnet50':
-			self.backbone = ResNet.resnet50(output_stride=output_stride, num_classes=None)
-			self.aspp = ASPP(output_stride, inplanes=2048)
-			self.decoder = Decoder(num_classes, low_level_inplanes=256)
-			self.low_feat_names = 'layer1'
-		elif backbone=='resnet101':
-			self.backbone = ResNet.resnet101(output_stride=output_stride, num_classes=None)
-			self.aspp = ASPP(output_stride, inplanes=2048)
-			self.decoder = Decoder(num_classes, low_level_inplanes=256)
-			self.low_feat_names = 'layer1'
+		if 'resnet' in backbone:
+			if backbone=='resnet18':
+				num_layers = 18
+				inplanes = 512
+				low_level_inplanes = 64
+			elif backbone=='resnet34':
+				num_layers = 34
+				inplanes = 512
+				low_level_inplanes = 64
+			elif backbone=='resnet50':
+				num_layers = 50
+				inplanes = 2048
+				low_level_inplanes = 256
+			elif backbone=='resnet101':
+				num_layers = 101
+				inplanes = 2048
+				low_level_inplanes = 256
+
+			self.backbone = ResNet.get_resnet(num_layers=num_layers, num_classes=None)
+			self._run_backbone = self._run_backbone_resnet
+			self.aspp = ASPP(output_stride, inplanes=inplanes)
+			self.decoder = Decoder(num_classes, low_level_inplanes=low_level_inplanes)
+
 		elif backbone=='vgg16':
 			self.backbone = VGG.vgg16_bn(output_stride=output_stride)
 			self.aspp = ASPP(output_stride, inplanes=512)
 			self.decoder = Decoder(num_classes, low_level_inplanes=256)
-			self.low_feat_names = 'layer3'
+
 		else:
 			raise NotImplementedError
 
@@ -140,11 +143,29 @@ class DeepLabV3Plus(BaseModel):
 
 
 	def forward(self, input):
-		x, low_feat = self.backbone(input, feature_names=self.low_feat_names)
+		x, low_feat = self._run_backbone(input)
 		x = self.aspp(x)
 		x = self.decoder(x, low_feat)
-		x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
+		x = F.interpolate(x, size=input.shape[-2:], mode='bilinear', align_corners=True)
 		return x
+
+
+	def _run_backbone_resnet(self, input):
+		# Stage1
+		x1 = self.backbone.conv1(input)
+		x1 = self.backbone.bn1(x1)
+		x1 = self.backbone.relu(x1)
+		# Stage2
+		x2 = self.backbone.maxpool(x1)
+		x2 = self.backbone.layer1(x2)
+		# Stage3
+		x3 = self.backbone.layer2(x2)
+		# Stage4
+		x4 = self.backbone.layer3(x3)
+		# Stage5
+		x5 = self.backbone.layer4(x4)
+		# Output
+		return x5, x2
 
 
 	def _freeze_bn(self):

@@ -91,7 +91,6 @@ class BiSeNet(BaseModel):
 		if backbone=='resnet18':
 			self.spatial_path = SpatialPath(basic_channels=64)
 			self.context_path = ResNet.resnet18(num_classes=None)
-			self.low_feat_names = 'layer3'
 			self.arm_os16 = Attention(in_channels=256)
 			self.arm_os32 = Attention(in_channels=512)
 			self.ffm = Fusion(in_channels1=256, in_channels2=768, num_classes=num_classes, kernel_size=3)
@@ -111,7 +110,7 @@ class BiSeNet(BaseModel):
 		feat_spatial = self.spatial_path(input)
 
 		# Context path
-		feat_os32, feat_os16 = self.context_path(input, feature_names=self.low_feat_names)
+		feat_os32, feat_os16 = self._run_context_path(input)
 		feat_gap = F.adaptive_avg_pool2d(feat_os32, (1,1))
 
 		feat_os16 = self.arm_os16(feat_os16)
@@ -139,6 +138,24 @@ class BiSeNet(BaseModel):
 			return x, feat_os16_sup, feat_os32_sup
 		else:
 			return x
+
+
+	def _run_context_path(self, input):
+		# Stage1
+		x1 = self.context_path.conv1(input)
+		x1 = self.context_path.bn1(x1)
+		x1 = self.context_path.relu(x1)
+		# Stage2
+		x2 = self.context_path.maxpool(x1)
+		x2 = self.context_path.layer1(x2)
+		# Stage3
+		x3 = self.context_path.layer2(x2)
+		# Stage4
+		x4 = self.context_path.layer3(x3)
+		# Stage5
+		x5 = self.context_path.layer4(x4)
+		# Output
+		return x5, x4
 
 
 	def _init_weights(self):

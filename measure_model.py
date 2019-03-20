@@ -32,27 +32,20 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 #	Create model
 #------------------------------------------------------------------------------
-# # UNet + MobileNetV2
+# # UNet
 # model = UNet(
 # 	backbone="mobilenetv2",
 # 	num_classes=2,
     # pretrained_backbone=None,
 # )
 
-# # UNet + ResNet
-# model = UNet(
-#     backbone="resnet18",
-#     num_classes=2,
-#     pretrained_backbone=None,
-# )
-
-# # DeepLabV3+
-# model = DeepLabV3Plus(
-#     backbone='resnet18',
-#     output_stride=16,
-#     num_classes=2,
-#     pretrained_backbone=None,
-# )
+# DeepLabV3+
+model = DeepLabV3Plus(
+    backbone='resnet18',
+    output_stride=16,
+    num_classes=2,
+    pretrained_backbone=None,
+)
 
 # # BiSeNet
 # model = BiSeNet(
@@ -68,12 +61,12 @@ args = parser.parse_args()
 #     pretrained_backbone=None,
 # )
 
-# ICNet
-model = ICNet(
-    backbone='resnet18',
-    num_classes=2,
-    pretrained_backbone=None,
-)
+# # ICNet
+# model = ICNet(
+#     backbone='resnet18',
+#     num_classes=2,
+#     pretrained_backbone=None,
+# )
 
 
 #------------------------------------------------------------------------------

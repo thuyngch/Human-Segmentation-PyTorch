@@ -128,10 +128,10 @@ class ResNet(nn.Module):
 		self.relu = nn.ReLU(inplace=True)
 		self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
 
-		self.layer1 = self._make_layer(block, 1*self.basic_inplanes, n_layers=layers[0], stride=strides[0], dilation=dilations[0])
-		self.layer2 = self._make_layer(block, 2*self.basic_inplanes, n_layers=layers[1], stride=strides[1], dilation=dilations[1])
-		self.layer3 = self._make_layer(block, 4*self.basic_inplanes, n_layers=layers[2], stride=strides[2], dilation=dilations[2])
-		self.layer4 = self._make_layer(block, 8*self.basic_inplanes, n_layers=layers[3], stride=strides[3], dilation=dilations[3])
+		self.layer1 = self._make_layer(block, 1*self.basic_inplanes, num_layers=layers[0], stride=strides[0], dilation=dilations[0])
+		self.layer2 = self._make_layer(block, 2*self.basic_inplanes, num_layers=layers[1], stride=strides[1], dilation=dilations[1])
+		self.layer3 = self._make_layer(block, 4*self.basic_inplanes, num_layers=layers[2], stride=strides[2], dilation=dilations[2])
+		self.layer4 = self._make_layer(block, 8*self.basic_inplanes, num_layers=layers[3], stride=strides[3], dilation=dilations[3])
 
 		if self.num_classes is not None:
 			self.fc = nn.Linear(8*self.basic_inplanes * block.expansion, num_classes)
@@ -144,30 +144,24 @@ class ResNet(nn.Module):
 		x = self.conv1(x)
 		x = self.bn1(x)
 		x = self.relu(x)
-
 		# Stage2
 		x = self.maxpool(x)
 		x = self.layer1(x)
-
 		# Stage3
 		x = self.layer2(x)
-
 		# Stage4
 		x = self.layer3(x)
-
 		# Stage5
 		x = self.layer4(x)
-
 		# Classification
 		if self.num_classes is not None:
 			x = x.mean(dim=(2,3))
 			x = self.fc(x)
-
 		# Output
 		return x
 
 
-	def _make_layer(self, block, planes, n_layers, stride=1, dilation=1, grids=None):
+	def _make_layer(self, block, planes, num_layers, stride=1, dilation=1, grids=None):
 		# Downsampler
 		downsample = None
 		if (stride != 1) or (self.inplanes != planes * block.expansion):
@@ -176,14 +170,14 @@ class ResNet(nn.Module):
 				nn.BatchNorm2d(planes * block.expansion))
 		# Multi-grids
 		if dilation!=1:
-			dilations = [dilation*(2**layer_idx) for layer_idx in range(n_layers)]
+			dilations = [dilation*(2**layer_idx) for layer_idx in range(num_layers)]
 		else:
-			dilations = n_layers*[dilation]
+			dilations = num_layers*[dilation]
 		# Construct layers
 		layers = []
 		layers.append(block(self.inplanes, planes, stride, downsample, dilations[0]))
 		self.inplanes = planes * block.expansion
-		for i in range(1, n_layers):
+		for i in range(1, num_layers):
 			layers.append(block(self.inplanes, planes, dilation=dilations[i]))
 		return nn.Sequential(*layers)
 
@@ -252,16 +246,16 @@ def resnet152(pretrained=None, **kwargs):
 	return model
 
 
-def get_resnet(n_layers, **kwargs):
-	if n_layers==18:
+def get_resnet(num_layers, **kwargs):
+	if num_layers==18:
 		return resnet18(**kwargs)
-	elif n_layers==34:
+	elif num_layers==34:
 		return resnet34(**kwargs)
-	elif n_layers==50:
+	elif num_layers==50:
 		return resnet50(**kwargs)
-	elif n_layers==101:
+	elif num_layers==101:
 		return resnet101(**kwargs)
-	elif n_layers==152:
+	elif num_layers==152:
 		return resnet152(**kwargs)
 	else:
 		raise NotImplementedError
