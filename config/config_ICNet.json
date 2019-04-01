@@ -20,7 +20,7 @@
 			"padding_value": 0,
 			"is_training": true,
 			"noise_std": 0,
-			"crop_range": [0.90, 1.0],
+			"crop_range": [1.0, 1.0],
 			"flip_hor": 0.5,
 			"rotate": 0.0,
 			"angle": 10,

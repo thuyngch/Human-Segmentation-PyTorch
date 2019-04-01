@@ -1,36 +1,36 @@
 {
-    "name": "HumanSeg",
+    "name": "PyTorch",
     "n_gpu": 1,
     
     "arch": {
-        "type": "DeepLab",
+        "type": "DeepLabV3Plus",
         "args": {
             "backbone": "resnet18",
             "output_stride": 16,
             "num_classes": 1,
             "freeze_bn": false,
-            "pretrained_backbone": "/data4/livesegmentation/thuync/PyTorch-pretrained/resnet18.pth"
+            "pretrained_backbone": "/media/antiaegis/storing/PyTorch_pretrains/resnet18.pth"
         }
     },
 
     "train_loader": {
         "type": "SegmentationDataLoader",
         "args":{
-            "pairs_file": "dataset/server205_train_mask_pairs_full.txt",
+            "pairs_file": "dataset/train_mask.txt",
             "color_channel": "RGB",
-            "resize": 224,
+            "resize": 320,
             "padding_value": 0,
             "is_training": true,
             "noise_std": 3,
-            "crop_range": [0.70, 1.0],
+            "crop_range": [0.90, 1.0],
             "flip_hor": 0.5,
-            "rotate": 0.3,
-            "angle": 15,
+            "rotate": 0.0,
+            "angle": 10,
             "normalize": true,
             "one_hot": false,
             "shuffle": true,
-            "batch_size": 32,
-            "n_workers": 48,
+            "batch_size": 4,
+            "n_workers": 8,
             "pin_memory": true
         }
     },
@@ -38,32 +38,33 @@
     "valid_loader": {
         "type": "SegmentationDataLoader",
         "args":{
-            "pairs_file": "dataset/server205_valid_mask_pairs_full.txt",
+            "pairs_file": "dataset/valid_mask.txt",
             "color_channel": "RGB",
-            "resize": 224,
+            "resize": 320,
             "padding_value": 0,
             "is_training": false,
             "normalize": true,
             "one_hot": false,
             "shuffle": false,
-            "batch_size": 32,
-            "n_workers": 48,
+            "batch_size": 4,
+            "n_workers": 8,
             "pin_memory": true
         }
     },
 
-    "optimizer": {
-        "type": "Adam",
-        "args":{
-            "lr": 1e-4,
-            "weight_decay": 1e-8
-        }
-    },
+	"optimizer": {
+		"type": "SGD",
+		"args":{
+			"lr": 1e-2,
+			"momentum": 0.9,
+			"weight_decay": 1e-6
+		}
+	},
 
-    "loss": "dice_loss_with_sigmoid",
-    "metrics": [
-        "iou_with_sigmoid"
-    ],
+	"loss": "dice_loss",
+	"metrics": [
+		"miou"
+	],
 
     "lr_scheduler": {
         "type":"StepLR",
@@ -73,17 +74,17 @@
         }
     },
 
-    "trainer": {
-        "epochs": 200,
-        "save_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch",
-        "save_freq": 1,
-        "verbosity": 2,
-        "monitor": "valid_loss",
-        "monitor_mode": "min"
-    },
+	"trainer": {
+		"epochs": 80,
+		"save_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg",
+		"save_freq": 1,
+		"verbosity": 2,
+		"monitor": "valid_loss",
+		"monitor_mode": "min"
+	},
 
-    "visualization":{
-        "tensorboardX": true,
-        "log_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch"
-    }
+	"visualization":{
+		"tensorboardX": true,
+		"log_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg"
+	}
 }
