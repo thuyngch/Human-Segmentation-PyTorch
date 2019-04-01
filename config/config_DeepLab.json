@@ -7,9 +7,9 @@
         "args": {
             "backbone": "resnet18",
             "output_stride": 16,
-            "num_classes": 1,
+            "num_classes": 2,
             "freeze_bn": false,
-            "pretrained_backbone": "/media/antiaegis/storing/PyTorch_pretrains/resnet18.pth"
+            "pretrained_backbone": "/workspace/pretrain/resnet18.pth"
         }
     },
 
@@ -29,8 +29,8 @@
             "normalize": true,
             "one_hot": false,
             "shuffle": true,
-            "batch_size": 4,
-            "n_workers": 8,
+            "batch_size": 32,
+            "n_workers": 24,
             "pin_memory": true
         }
     },
@@ -46,8 +46,8 @@
             "normalize": true,
             "one_hot": false,
             "shuffle": false,
-            "batch_size": 4,
-            "n_workers": 8,
+            "batch_size": 32,
+            "n_workers": 24,
             "pin_memory": true
         }
     },
@@ -57,26 +57,26 @@
 		"args":{
 			"lr": 1e-2,
 			"momentum": 0.9,
-			"weight_decay": 1e-6
+			"weight_decay": 1e-8
 		}
 	},
 
-	"loss": "dice_loss",
+	"loss": "ce_loss",
 	"metrics": [
 		"miou"
 	],
 
-    "lr_scheduler": {
-        "type":"StepLR",
-        "args":{
-            "step_size": 100,
-            "gamma": 1.0
-        }
-    },
+	"lr_scheduler": {
+		"type":"StepLR",
+		"args":{
+			"step_size": 100,
+			"gamma": 1.0
+		}
+	},
 
 	"trainer": {
 		"epochs": 80,
-		"save_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg",
+		"save_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch/",
 		"save_freq": 1,
 		"verbosity": 2,
 		"monitor": "valid_loss",
@@ -85,6 +85,6 @@
 
 	"visualization":{
 		"tensorboardX": true,
-		"log_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg"
+		"log_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch/"
 	}
 }
