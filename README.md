@@ -59,7 +59,7 @@ GPU: GeForce GTX 1050 Mobile, CUDA 9.0
 |:-:|:-:|:-:|:-:|:-:|:-:|
 | UNet_MobileNetV2 (alpha=1.0, expansion=6) | 4.7M | 1.3G | 167ms | 17ms | 91.37% |
 | UNet_ResNet18 | 16.6M | 9.1G | 165ms | 21ms | 90.09% |
-| DeepLab3+_ResNet18 | 16.6M | 9.1G | 133ms | 28ms | --- |
+| DeepLab3+_ResNet18 | 16.6M | 9.1G | 133ms | 28ms | 91.21% |
 | BiSeNet_ResNet18 | 11.9M | 4.7G | 88ms | 10ms | --- |
 | PSPNet_ResNet18 | 12.6M | 20.7G | 235ms | 666ms | --- |
 | ICNet_ResNet18 | 11.6M | 2.0G | 48ms | 55ms | 86.27% |
