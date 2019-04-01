@@ -1,9 +1,8 @@
 #------------------------------------------------------------------------------
 #   Libraries
 #------------------------------------------------------------------------------
-import os, math, json, logging, datetime, torch
 from time import time
-
+import os, math, json, logging, datetime, torch
 from utils.visualization import WriterTensorboardX
 
 
@@ -16,9 +15,23 @@ class BaseTrainer:
 	"""
 	def __init__(self, model, loss, metrics, optimizer, resume, config, train_logger=None):
 		self.config = config
+
+		# Setup directory for checkpoint saving
+		start_time = datetime.datetime.now().strftime('%m%d_%H%M%S')
+		self.checkpoint_dir = os.path.join(config['trainer']['save_dir'], config['name'], start_time)
+		os.makedirs(self.checkpoint_dir, exist_ok=True)
+
+		# Setup logger
+		logging.basicConfig(
+			level=logging.INFO,
+			format="%(asctime)s %(message)s",
+			handlers=[
+				logging.FileHandler(os.path.join(self.checkpoint_dir, "train.log")),
+				logging.StreamHandler(),
+		])
 		self.logger = logging.getLogger(self.__class__.__name__)
 
-		# setup GPU device if available, move model into configured device
+		# Setup GPU device if available, move model into configured device
 		self.device, device_ids = self._prepare_device(config['n_gpu'])
 		self.model = model.to(self.device)
 		if len(device_ids) > 1:
@@ -41,22 +54,18 @@ class BaseTrainer:
 		self.monitor_best = math.inf if self.monitor_mode == 'min' else -math.inf
 		self.start_epoch = 1
 
-		# setup directory for checkpoint saving
-		start_time = datetime.datetime.now().strftime('%m%d_%H%M%S')
-		self.checkpoint_dir = os.path.join(config['trainer']['save_dir'], config['name'], start_time)
-
 		# setup visualization writer instance
 		writer_train_dir = os.path.join(config['visualization']['log_dir'], config['name'], start_time, "train")
 		writer_valid_dir = os.path.join(config['visualization']['log_dir'], config['name'], start_time, "valid")
 		self.writer_train = WriterTensorboardX(writer_train_dir, self.logger, config['visualization']['tensorboardX'])
 		self.writer_valid = WriterTensorboardX(writer_valid_dir, self.logger, config['visualization']['tensorboardX'])
 
-		# Save configuration file into checkpoint directory:
-		os.makedirs(self.checkpoint_dir, exist_ok=True)
+		# Save configuration file into checkpoint directory
 		config_save_path = os.path.join(self.checkpoint_dir, 'config.json')
 		with open(config_save_path, 'w') as handle:
 			json.dump(config, handle, indent=4, sort_keys=False)
 
+		# Resume
 		if resume:
 			self._resume_checkpoint(resume)
 	
@@ -79,16 +88,13 @@ class BaseTrainer:
 
 
 	def train(self):
-		"""
-		Full training logic
-		"""
 		for epoch in range(self.start_epoch, self.epochs + 1):
-			print("\n----------------------------------------------------------------")
-			print("[EPOCH %d]" % (epoch))
+			self.logger.info("\n----------------------------------------------------------------")
+			self.logger.info("[EPOCH %d]" % (epoch))
 			start_time = time()
 			result = self._train_epoch(epoch)
 			finish_time = time()
-			print("[base_trainer] Finish at {}, Runtime: {:.3f} [s]".format(datetime.datetime.now(), finish_time-start_time))
+			self.logger.info("Finish at {}, Runtime: {:.3f} [s]".format(datetime.datetime.now(), finish_time-start_time))
 			
 			# save logged informations into log dict
 			log = {}
@@ -113,16 +119,17 @@ class BaseTrainer:
 				try:
 					if  (self.monitor_mode == 'min' and log[self.monitor] < self.monitor_best) or\
 						(self.monitor_mode == 'max' and log[self.monitor] > self.monitor_best):
-						print("[base_trainer] Monitor improved from %f to %f" % (self.monitor_best, log[self.monitor]))
+						self.logger.info("Monitor improved from %f to %f" % (self.monitor_best, log[self.monitor]))
 						self.monitor_best = log[self.monitor]
 						best = True
 				except KeyError:
 					if epoch == 1:
-						msg = "[base_trainer] Warning: Can\'t recognize metric named '{}' ".format(self.monitor)\
+						msg = "Warning: Can\'t recognize metric named '{}' ".format(self.monitor)\
 							+ "for performance monitoring. model_best checkpoint won\'t be updated."
 						self.logger.warning(msg)
-			if epoch % self.save_freq == 0:
-				self._save_checkpoint(epoch, save_best=best)
+
+			# Save checkpoint
+			self._save_checkpoint(epoch, save_best=best)
 
 
 	def _train_epoch(self, epoch):
@@ -142,6 +149,7 @@ class BaseTrainer:
 		:param log: logging information of the epoch
 		:param save_best: if True, rename the saved checkpoint to 'model_best.pth'
 		"""
+		# Construct savedict
 		arch = type(self.model).__name__
 		state = {
 			'arch': arch,
@@ -152,15 +160,21 @@ class BaseTrainer:
 			'monitor_best': self.monitor_best,
 			'config': self.config
 		}
-		filename = os.path.join(self.checkpoint_dir, 'epoch{}.pth'.format(epoch))
-		torch.save(state, filename)
-		self.logger.info("[base_trainer] Saving checkpoint at {}".format(filename))
+
+		# Save checkpoint for each epoch
+		if self.save_freq is not None:	# Use None mode to avoid over disk space with large models
+			if epoch % self.save_freq == 0:
+				filename = os.path.join(self.checkpoint_dir, 'epoch{}.pth'.format(epoch))
+				torch.save(state, filename)
+				self.logger.info("Saving checkpoint at {}".format(filename))
+
+		# Save the best checkpoint
 		if save_best:
 			best_path = os.path.join(self.checkpoint_dir, 'model_best.pth')
 			torch.save(state, best_path)
-			self.logger.info("[base_trainer] Saving current best at {}".format(best_path))
+			self.logger.info("Saving current best at {}".format(best_path))
 		else:
-			self.logger.info("[base_trainer] Monitor is not improved from %f" % (self.monitor_best))
+			self.logger.info("Monitor is not improved from %f" % (self.monitor_best))
 
 
 	def _resume_checkpoint(self, resume_path):
@@ -188,4 +202,4 @@ class BaseTrainer:
 		# 	self.optimizer.load_state_dict(checkpoint['optimizer'])
 	
 		self.train_logger = checkpoint['logger']
-		self.logger.info("[base_trainer] Checkpoint '{}' (epoch {}) loaded".format(resume_path, self.start_epoch-1))
+		self.logger.info("Checkpoint '{}' (epoch {}) loaded".format(resume_path, self.start_epoch-1))

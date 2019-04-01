@@ -75,7 +75,7 @@
 	"trainer": {
 		"epochs": 80,
 		"save_dir": "/workspace/checkpoints/",
-		"save_freq": 1,
+		"save_freq": null,
 		"verbosity": 2,
 		"monitor": "valid_loss",
 		"monitor_mode": "min"
