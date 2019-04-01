@@ -7,7 +7,7 @@
         "args": {
             "backbone": "mobilenetv2",
             "num_classes": 2,
-            "pretrained_backbone": "/media/antiaegis/storing/PyTorch-pretrained/mobilenetv2.pth"
+            "pretrained_backbone": null
         }
     },
 
@@ -19,16 +19,16 @@
 			"resize": 320,
 			"padding_value": 0,
 			"is_training": true,
-			"noise_std": 0,
-			"crop_range": [1.0, 1.0],
+			"noise_std": 3,
+			"crop_range": [0.90, 1.0],
 			"flip_hor": 0.5,
 			"rotate": 0.0,
-			"angle": 0,
+			"angle": 10,
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": true,
-			"batch_size": 8,
-			"n_workers": 8,
+			"batch_size": 16,
+			"n_workers": 24,
 			"pin_memory": true
 		}
 	},
@@ -44,8 +44,8 @@
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": false,
-			"batch_size": 8,
-			"n_workers": 8,
+			"batch_size": 16,
+			"n_workers": 24,
 			"pin_memory": true
 		}
 	},
@@ -53,13 +53,13 @@
 	"optimizer": {
 		"type": "SGD",
 		"args":{
-			"lr": 1e-3,
+			"lr": 1e-2,
 			"momentum": 0.9,
-			"weight_decay": 1e-6
+			"weight_decay": 1e-8
 		}
 	},
 
-	"loss": "dice_loss",
+	"loss": "ce_loss",
 	"metrics": [
 		"miou"
 	],
@@ -74,7 +74,7 @@
 
 	"trainer": {
 		"epochs": 80,
-		"save_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg/PyTorch",
+		"save_dir": "/workspace/checkpoints/",
 		"save_freq": 1,
 		"verbosity": 2,
 		"monitor": "valid_loss",
@@ -83,6 +83,6 @@
 
 	"visualization":{
 		"tensorboardX": true,
-		"log_dir": "/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg/PyTorch"
+		"log_dir": "/workspace/checkpoints/"
 	}
 }

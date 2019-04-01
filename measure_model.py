@@ -32,20 +32,20 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 #	Create model
 #------------------------------------------------------------------------------
-# # UNet
-# model = UNet(
-# 	backbone="mobilenetv2",
-# 	num_classes=2,
-    # pretrained_backbone=None,
-# )
-
-# DeepLabV3+
-model = DeepLabV3Plus(
-    backbone='resnet18',
-    output_stride=16,
-    num_classes=2,
+# UNet
+model = UNet(
+	backbone="mobilenetv2",
+	num_classes=2,
     pretrained_backbone=None,
 )
+
+# # DeepLabV3+
+# model = DeepLabV3Plus(
+#     backbone='resnet18',
+#     output_stride=16,
+#     num_classes=2,
+#     pretrained_backbone=None,
+# )
 
 # # BiSeNet
 # model = BiSeNet(
