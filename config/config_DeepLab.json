@@ -1,5 +1,5 @@
 {
-    "name": "PyTorch",
+    "name": "HumanSeg",
     "n_gpu": 1,
     
     "arch": {
@@ -76,7 +76,7 @@
 
 	"trainer": {
 		"epochs": 80,
-		"save_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch/",
+		"save_dir": "/workspace/checkpoints/",
 		"save_freq": 1,
 		"verbosity": 2,
 		"monitor": "valid_loss",
@@ -85,6 +85,6 @@
 
 	"visualization":{
 		"tensorboardX": true,
-		"log_dir": "/data4/livesegmentation/thuync/checkpoints/PyTorch/"
+		"log_dir": "/workspace/checkpoints/"
 	}
 }
