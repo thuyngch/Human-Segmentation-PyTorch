@@ -59,7 +59,7 @@
 		}
 	},
 
-	"loss": "ce_loss",
+	"loss": "dice_loss",
 	"metrics": [
 		"miou"
 	],
