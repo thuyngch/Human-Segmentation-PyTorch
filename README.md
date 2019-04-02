@@ -57,9 +57,9 @@ GPU: GeForce GTX 1050 Mobile, CUDA 9.0
 
 | Model | Parameters | FLOPs | CPU time | GPU time | mIoU |
 |:-:|:-:|:-:|:-:|:-:|:-:|
-| UNet_MobileNetV2 (alpha=1.0, expansion=6) | 4.7M | 1.3G | 167ms | 17ms | 91.37% |
-| UNet_ResNet18 | 16.6M | 9.1G | 165ms | 21ms | 90.09% |
-| DeepLab3+_ResNet18 | 16.6M | 9.1G | 133ms | 28ms | 91.21% |
+| [UNet_MobileNetV2](https://drive.google.com/file/d/17GZLCi_FHhWo4E4wPobbLAQdBZrlqVnF/view?usp=sharing) (alpha=1.0, expansion=6) | 4.7M | 1.3G | 167ms | 17ms | 91.37% |
+| [UNet_ResNet18](https://drive.google.com/file/d/14QxasSCcL_ij7NHR7Fshx5fi5Sc9MleD/view?usp=sharing) | 16.6M | 9.1G | 165ms | 21ms | 90.09% |
+| [DeepLab3+_ResNet18](https://drive.google.com/file/d/1WME_m8CCDupM6tLX6yPt-iA6gpmwQ7Sc/view?usp=sharing) | 16.6M | 9.1G | 133ms | 28ms | 91.21% |
 | BiSeNet_ResNet18 | 11.9M | 4.7G | 88ms | 10ms | --- |
 | PSPNet_ResNet18 | 12.6M | 20.7G | 235ms | 666ms | --- |
-| ICNet_ResNet18 | 11.6M | 2.0G | 48ms | 55ms | 86.27% |
+| [ICNet_ResNet18](https://drive.google.com/file/d/1Rg8KSU89oQoWW37gjipFSsg2w_X_lefQ/view?usp=sharing) | 11.6M | 2.0G | 48ms | 55ms | 86.27% |
