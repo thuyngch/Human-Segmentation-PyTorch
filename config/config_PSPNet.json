@@ -59,7 +59,7 @@
 		}
 	},
 
-	"loss": "dice_loss",
+	"loss": "custom_pspnet_loss",
 	"metrics": [
 		"miou"
 	],
