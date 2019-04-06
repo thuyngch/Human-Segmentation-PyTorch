@@ -131,7 +131,10 @@ class PSPNet(BaseModel):
 		# Stage5
 		x5 = self.backbone.layer4(x4)
 		# Output
-		return x5, x4
+		if self.training:
+			return x5, x4
+		else:
+			return x5
 
 
 	def _init_weights(self):

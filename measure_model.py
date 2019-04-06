@@ -32,12 +32,12 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 #	Create model
 #------------------------------------------------------------------------------
-# UNet
-model = UNet(
-	backbone="mobilenetv2",
-	num_classes=2,
-    pretrained_backbone=None,
-)
+# # UNet
+# model = UNet(
+# 	backbone="mobilenetv2",
+# 	num_classes=2,
+#     pretrained_backbone=None,
+# )
 
 # # DeepLabV3+
 # model = DeepLabV3Plus(
@@ -54,12 +54,12 @@ model = UNet(
 #     pretrained_backbone=None,
 # )
 
-# # PSPNet
-# model = PSPNet(
-#     backbone='resnet18',
-#     num_classes=2,
-#     pretrained_backbone=None,
-# )
+# PSPNet
+model = PSPNet(
+    backbone='resnet18',
+    num_classes=2,
+    pretrained_backbone=None,
+)
 
 # # ICNet
 # model = ICNet(
@@ -73,7 +73,7 @@ model = UNet(
 #   Summary network
 #------------------------------------------------------------------------------
 model.eval()
-summary(model, input_size=(3, args.input_sz, args.input_sz), device='cpu')
+model.summary(input_shape=(3, args.input_sz, args.input_sz), device='cpu')
 
 
 #------------------------------------------------------------------------------
@@ -98,14 +98,3 @@ if args.use_cuda:
 else:
     print("Inference time on cpu: %.2f [ms]" % ((finish_time-start_time)*1000/args.n_measures))
     print("Inference fps on cpu: %.2f [fps]" % (1 / ((finish_time-start_time)/args.n_measures)))
-
-
-#------------------------------------------------------------------------------
-#   Count FLOPs
-#------------------------------------------------------------------------------
-print('----------------------------------------------------------------')
-counter = add_flops_counting_methods(model)
-counter.eval().start_flops_count()
-_ = counter(input)
-print('Flops:  {}'.format(flops_to_string(counter.compute_average_flops_cost())))
-print('Params: ' + get_model_parameters_number(counter))
