@@ -61,7 +61,7 @@
 
 	"loss": "custom_pspnet_loss",
 	"metrics": [
-		"miou"
+		"custom_pspnet_miou"
 	],
 
 	"lr_scheduler": {
