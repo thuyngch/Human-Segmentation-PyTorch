@@ -17,13 +17,13 @@ from models import UNet, DeepLabV3Plus, BiSeNet, PSPNet, ICNet
 parser = argparse.ArgumentParser(description="Arguments for the script")
 
 parser.add_argument('--use_cuda', action='store_true', default=False,
-                    help='Use GPU acceleration')
+					help='Use GPU acceleration')
 
 parser.add_argument('--input_sz', type=int, default=320,
-                    help='Size of the input')
+					help='Size of the input')
 
 parser.add_argument('--n_measures', type=int, default=10,
-                    help='Number of time measurements')
+					help='Number of time measurements')
 
 args = parser.parse_args()
 
@@ -55,9 +55,9 @@ args = parser.parse_args()
 
 # PSPNet
 model = PSPNet(
-    backbone='resnet18',
-    num_classes=2,
-    pretrained_backbone=None,
+	backbone='resnet18',
+	num_classes=2,
+	pretrained_backbone=None,
 )
 
 # # ICNet
@@ -71,7 +71,7 @@ model = PSPNet(
 #------------------------------------------------------------------------------
 #   Summary network
 #------------------------------------------------------------------------------
-model.eval()
+model.train()
 model.summary(input_shape=(3, args.input_sz, args.input_sz), device='cpu')
 
 
@@ -80,20 +80,20 @@ model.summary(input_shape=(3, args.input_sz, args.input_sz), device='cpu')
 #------------------------------------------------------------------------------
 input = torch.randn([1, 3, args.input_sz, args.input_sz], dtype=torch.float)
 if args.use_cuda:
-    model = model.cuda()
-    input = input.cuda()
+	model.cuda()
+	input = input.cuda()
 
 for _ in range(10):
-    model(input)
+	model(input)
 
 start_time = time()
 for _ in range(args.n_measures):
-    model(input)
+	model(input)
 finish_time = time()
 
 if args.use_cuda:
-    print("Inference time on cuda: %.2f [ms]" % ((finish_time-start_time)*1000/args.n_measures))
-    print("Inference fps on cuda: %.2f [fps]" % (1 / ((finish_time-start_time)/args.n_measures)))
+	print("Inference time on cuda: %.2f [ms]" % ((finish_time-start_time)*1000/args.n_measures))
+	print("Inference fps on cuda: %.2f [fps]" % (1 / ((finish_time-start_time)/args.n_measures)))
 else:
-    print("Inference time on cpu: %.2f [ms]" % ((finish_time-start_time)*1000/args.n_measures))
-    print("Inference fps on cpu: %.2f [fps]" % (1 / ((finish_time-start_time)/args.n_measures)))
+	print("Inference time on cpu: %.2f [ms]" % ((finish_time-start_time)*1000/args.n_measures))
+	print("Inference fps on cpu: %.2f [fps]" % (1 / ((finish_time-start_time)/args.n_measures)))

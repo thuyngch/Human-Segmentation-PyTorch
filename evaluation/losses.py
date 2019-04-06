@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 #------------------------------------------------------------------------------
-#   Dice loss
+#   Fundamental losses
 #------------------------------------------------------------------------------
 def dice_loss(logits, targets, smooth=1.0):
 	"""
@@ -35,9 +35,6 @@ def dice_loss_with_sigmoid(sigmoid, targets, smooth=1.0):
 	return dice
 
 
-#------------------------------------------------------------------------------
-#   Cross Entropy loss
-#------------------------------------------------------------------------------
 def ce_loss(logits, targets):
 	"""
 	logits: (torch.float32)  shape (N, C, H, W)
@@ -66,9 +63,29 @@ def custom_bisenet_loss(logits, targets):
 
 
 #------------------------------------------------------------------------------
+#   Custom loss for PSPNet
+#------------------------------------------------------------------------------
+def custom_pspnet_loss(logits, targets, alpha=0.4):
+	"""
+	logits: (torch.float32) (main_out, aux_out) of shape (N, C, H, W), (N, C, H/8, W/8)
+	targets: (torch.float32) shape (N, H, W), value {0,1,...,C-1}
+	"""
+	if type(logits)==tuple:
+		with torch.no_grad():
+			_targets = torch.unsqueeze(targets, dim=1)
+			aux_targets = F.interpolate(_targets, size=logits[1].shape[-2:], mode='bilinear', align_corners=True)[:,0,...]
+
+		main_loss = ce_loss(logits[0], targets)
+		aux_loss = ce_loss(logits[1], aux_targets)
+		return main_loss + alpha*aux_loss
+	else:
+		return ce_loss(logits, targets)
+
+
+#------------------------------------------------------------------------------
 #   Custom loss for ICNet
 #------------------------------------------------------------------------------
-def custom_icnet_loss(logits, targets):
+def custom_icnet_loss(logits, targets, alpha=[0.4, 0.16]):
 	"""
 	logits: (torch.float32)
 		[train_mode] (x_124_cls, x_12_cls, x_24_cls) of shape
@@ -88,7 +105,7 @@ def custom_icnet_loss(logits, targets):
 		loss1 = ce_loss(logits[0], target1)
 		loss2 = ce_loss(logits[1], target2)
 		loss3 = ce_loss(logits[2], target3)
-		return loss1 + 0.4*loss2 + 0.16*loss3
+		return loss1 + alpha[0]*loss2 + alpha[1]*loss3
 
 	else:
 		return ce_loss(logits, targets)
