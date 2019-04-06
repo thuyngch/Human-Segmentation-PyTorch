@@ -3,6 +3,7 @@
 #------------------------------------------------------------------------------
 import torch
 import torch.nn as nn
+from base import BaseBackbone
 
 
 #------------------------------------------------------------------------------
@@ -102,7 +103,7 @@ class Bottleneck(nn.Module):
 #------------------------------------------------------------------------------
 #   Class of ResNet
 #------------------------------------------------------------------------------
-class ResNet(nn.Module):
+class ResNet(BaseBackbone):
 	basic_inplanes = 64
 
 	def __init__(self, block, layers, output_stride=32, num_classes=1000):
@@ -136,7 +137,7 @@ class ResNet(nn.Module):
 		if self.num_classes is not None:
 			self.fc = nn.Linear(8*self.basic_inplanes * block.expansion, num_classes)
 
-		self._init_weights()
+		self.init_weights()
 
 
 	def forward(self, x):
@@ -180,32 +181,6 @@ class ResNet(nn.Module):
 		for i in range(1, num_layers):
 			layers.append(block(self.inplanes, planes, dilation=dilations[i]))
 		return nn.Sequential(*layers)
-
-
-	def _load_pretrained_model(self, pretrained_file):
-		pretrain_dict = torch.load(pretrained_file, map_location='cpu')
-		model_dict = {}
-		state_dict = self.state_dict()
-		print("[ResNet] Loading pretrained model...")
-		for k, v in pretrain_dict.items():
-			if k in state_dict:
-				model_dict[k] = v
-			else:
-				print(k, "is ignored")
-		state_dict.update(model_dict)
-		self.load_state_dict(state_dict)
-
-
-	def _init_weights(self):
-		for m in self.modules():
-			if isinstance(m, nn.Conv2d):
-				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-			elif isinstance(m, nn.BatchNorm2d):
-				nn.init.constant_(m.weight, 1)
-				nn.init.constant_(m.bias, 0)
-			elif isinstance(m, nn.Linear):
-				m.weight.data.normal_(0, 0.01)
-				m.bias.data.zero_()
 
 
 #------------------------------------------------------------------------------

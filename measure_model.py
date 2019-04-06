@@ -9,7 +9,6 @@ from time import time
 from torchsummary import summary
 
 from models import UNet, DeepLabV3Plus, BiSeNet, PSPNet, ICNet
-from utils.flops_counter import add_flops_counting_methods, flops_to_string, get_model_parameters_number
 
 
 #------------------------------------------------------------------------------

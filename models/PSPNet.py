@@ -94,9 +94,9 @@ class PSPNet(BaseModel):
 		else:
 			raise NotImplementedError
 
-		self._init_weights()
+		self.init_weights()
 		if pretrained_backbone is not None:
-			self.backbone._load_pretrained_model(pretrained_backbone)
+			self.backbone.load_pretrained_model(pretrained_backbone)
 
 
 	def forward(self, input):
@@ -135,14 +135,3 @@ class PSPNet(BaseModel):
 			return x5, x4
 		else:
 			return x5
-
-
-	def _init_weights(self):
-		for m in self.modules():
-			if isinstance(m, nn.Conv2d):
-				nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-				if m.bias is not None:
-					m.bias.data.zero_()
-			elif isinstance(m, nn.BatchNorm2d):
-				nn.init.constant_(m.weight, 1)
-				nn.init.constant_(m.bias, 0)
