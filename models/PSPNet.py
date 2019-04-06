@@ -78,8 +78,8 @@ class PSPNet(BaseModel):
 			else:
 				raise NotImplementedError
 
+			self.run_backbone = self._run_backbone_resnet
 			self.backbone = ResNet.get_resnet(n_layers, output_stride=self.backbone_os, num_classes=None)
-			self.low_feat_names = 'stage4'
 			self.pyramid = PyramidPoolingModule(in_channels=stage5_channels, pyramids=self.pyramids)
 			self.main_output = nn.Sequential(OrderedDict([
 				("conv1", ConvBlock(2*stage5_channels, stage5_channels//4, kernel_size=3, padding=1, bias=False)),
@@ -102,18 +102,36 @@ class PSPNet(BaseModel):
 	def forward(self, input):
 		inp_shape = input.shape[2:]
 		if self.training:
-			feat_stage5, feat_stage4 = self.backbone(input, self.low_feat_names)
+			feat_stage5, feat_stage4 = self.run_backbone(input)
 			feat_pyramid = self.pyramid(feat_stage5)
 			main_out = self.main_output(feat_pyramid)
 			main_out = F.interpolate(main_out, size=inp_shape, mode='bilinear', align_corners=True)
 			aux_out = self.aux_output(feat_stage4)
 			return main_out, aux_out
 		else:
-			feat_stage5 = self.backbone(input)
+			feat_stage5 = self.run_backbone(input)
 			feat_pyramid = self.pyramid(feat_stage5)
 			main_out = self.main_output(feat_pyramid)
 			main_out = F.interpolate(main_out, size=inp_shape, mode='bilinear', align_corners=True)
 			return main_out
+
+
+	def _run_backbone_resnet(self, input):
+		# Stage1
+		x1 = self.backbone.conv1(input)
+		x1 = self.backbone.bn1(x1)
+		x1 = self.backbone.relu(x1)
+		# Stage2
+		x2 = self.backbone.maxpool(x1)
+		x2 = self.backbone.layer1(x2)
+		# Stage3
+		x3 = self.backbone.layer2(x2)
+		# Stage4
+		x4 = self.backbone.layer3(x3)
+		# Stage5
+		x5 = self.backbone.layer4(x4)
+		# Output
+		return x5, x4
 
 
 	def _init_weights(self):

@@ -3,7 +3,7 @@
 	"n_gpu": 1,
 	
 	"arch": {
-		"type": "BiSeNet",
+		"type": "PSPNet",
 		"args": {
 			"backbone": "resnet18",
 			"num_classes": 2,
@@ -27,7 +27,7 @@
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": true,
-			"batch_size": 32,
+			"batch_size": 16,
 			"n_workers": 10,
 			"pin_memory": true
 		}
@@ -44,7 +44,7 @@
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": false,
-			"batch_size": 32,
+			"batch_size": 16,
 			"n_workers": 10,
 			"pin_memory": true
 		}
@@ -59,9 +59,9 @@
 		}
 	},
 
-	"loss": "custom_bisenet_loss",
+	"loss": "dice_loss",
 	"metrics": [
-		"custom_bisenet_miou"
+		"miou"
 	],
 
 	"lr_scheduler": {
