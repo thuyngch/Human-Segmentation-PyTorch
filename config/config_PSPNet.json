@@ -27,7 +27,7 @@
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": true,
-			"batch_size": 16,
+			"batch_size": 32,
 			"n_workers": 10,
 			"pin_memory": true
 		}
@@ -44,7 +44,7 @@
 			"normalize": true,
 			"one_hot": false,
 			"shuffle": false,
-			"batch_size": 16,
+			"batch_size": 32,
 			"n_workers": 10,
 			"pin_memory": true
 		}
