@@ -96,9 +96,12 @@ class VideoInference(BaseInference):
 		else:
 			raise NotImplementedError
 
+		self.mean = np.array([0.485,0.456,0.406])[None,None,:]
+		self.std = np.array([0.229,0.224,0.225])[None,None,:]
+
 		# Read video
 		self.video_path = video_path
-		self.cap = cv2.VideoCapture(0)
+		self.cap = cv2.VideoCapture(video_path)
 		_, frame = self.cap.read()
 		self.H, self.W = frame.shape[:2]
 
@@ -111,6 +114,8 @@ class VideoInference(BaseInference):
 
 	def preprocess(self, image):
 		image = cv2.resize(image, (self.input_size,self.input_size), interpolation=cv2.INTER_LINEAR)
+		image = image.astype(np.float32) / 255.0
+		image = (image - self.mean) / self.std
 		X = np.transpose(image, axes=(2, 0, 1))
 		X = np.expand_dims(X, axis=0)
 		X = torch.tensor(X, dtype=torch.float32)

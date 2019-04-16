@@ -33,7 +33,7 @@ class UNet(BaseModel):
 	def __init__(self, backbone="mobilenetv2", num_classes=2, pretrained_backbone=None):
 		super(UNet, self).__init__()
 		if backbone=='mobilenetv2':
-			alpha = 0.5
+			alpha = 1.0
 			expansion = 6
 			self.backbone = MobileNetV2.MobileNetV2(alpha=alpha, expansion=expansion, num_classes=None)
 			self._run_backbone = self._run_backbone_mobilenetv2
