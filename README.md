@@ -1,5 +1,5 @@
-# Semantic-Segmentation-PyTorch
-Semantic segmentation [models](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#supported-networks), [training](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#training)/[inference](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#inference) code, and [trained weights](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#benchmark), implemented in PyTorch.
+# Human-Segmentation-PyTorch
+Human segmentation [models](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#supported-networks), [training](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#training)/[inference](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#inference) code, and [trained weights](https://github.com/AntiAegis/Semantic-Segmentation-PyTorch#benchmark), implemented in PyTorch.
 
 ## Supported networks
 * [UNet](https://arxiv.org/abs/1505.04597): backbones [MobileNetV2](https://arxiv.org/abs/1801.04381) (all aphas and expansions), [ResNetV1](https://arxiv.org/abs/1512.03385) (all num_layers)
