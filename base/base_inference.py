@@ -96,6 +96,7 @@ class VideoInference(BaseInference):
 		else:
 			raise NotImplementedError
 
+		# Preprocess
 		self.mean = np.array([0.485,0.456,0.406])[None,None,:]
 		self.std = np.array([0.229,0.224,0.225])[None,None,:]
 
