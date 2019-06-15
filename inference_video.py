@@ -16,7 +16,7 @@ from utils import utils
 #------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Arguments for the script")
 
-parser.add_argument('--use_cuda', action='store_true', default=True,
+parser.add_argument('--use_cuda', action='store_true', default=False,
                     help='Use GPU acceleration')
 
 parser.add_argument('--bg', type=str, default=None,
@@ -28,13 +28,13 @@ parser.add_argument('--watch', action='store_true', default=False,
 parser.add_argument('--input_sz', type=int, default=320,
                     help='Input size')
 
-parser.add_argument('--checkpoint', type=str, default="model_best.pth",
+parser.add_argument('--checkpoint', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/checkpoints/HumanSeg/UNet_MobileNetV2/model_best.pth",
                     help='Path to the trained model file')
 
-parser.add_argument('--video', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/video04.MOV",
+parser.add_argument('--video', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/Directions.54138969.mp4",
                     help='Path to the input video')
 
-parser.add_argument('--output', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/PyTorch/video04-mobilenetv2.MOV",
+parser.add_argument('--output', type=str, default="/media/antiaegis/storing/FORGERY/segmentation/videos/Directions.54138969.output.mp4",
                     help='Path to the output video')
 
 args = parser.parse_args()
@@ -50,7 +50,7 @@ H, W = frame.shape[:2]
 
 # Video output
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-out = cv2.VideoWriter(args.output, fourcc, 30, (H,W))
+out = cv2.VideoWriter(args.output, fourcc, 30, (W,H))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 # Background
@@ -89,7 +89,8 @@ while(cap.isOpened()):
 	# Read frame from camera
 	start_time = time()
 	_, frame = cap.read()
-	image = cv2.transpose(frame[...,::-1])
+	# image = cv2.transpose(frame[...,::-1])
+	image = frame[...,::-1]
 	h, w = image.shape[:2]
 	read_cam_time = time()
 

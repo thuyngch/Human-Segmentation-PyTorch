@@ -163,6 +163,6 @@ def resize_image(image, expected_size, pad_value, ret_params=False, mode=cv2.INT
 	else:
 		image = cv2.resize(image, (expected_size, expected_size), interpolation=mode)
 		if ret_params:
-			return image, 0, 0, h_new, w_new
+			return image, 0, 0, expected_size, expected_size
 		else:
 			return image
