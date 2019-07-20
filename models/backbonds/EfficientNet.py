@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 from .EfficientNet.efficientnet import EfficientNet as BaseEfficientNet
-from .EfficientNet.efficientnet import load_pretrained_weights, get_model_params, relu_fn
+from .EfficientNet.efficientnet import MBConvBlock, load_pretrained_weights, get_model_params, relu_fn
 
 
 #------------------------------------------------------------------------------
@@ -21,6 +21,16 @@ class EfficientNet(BaseEfficientNet):
 		"efficientnet-b5": [7, 12, 26, 38],
 		"efficientnet-b6": [8, 14, 30, 44],
 		"efficientnet-b7": [10, 17, 37, 54],
+	}
+	in_channels_dict = {
+		'efficientnet-b0': [24, 40, 112, 320],
+		'efficientnet-b1': [24, 40, 112, 320],
+		'efficientnet-b2': [24, 48, 120, 352],
+		'efficientnet-b3': [32, 48, 136, 384],
+		'efficientnet-b4': [32, 56, 160, 448],
+		'efficientnet-b5': [40, 64, 176, 512],
+		'efficientnet-b6': [40, 72, 200, 576],
+		'efficientnet-b7': [48, 80, 224, 2560],
 	}
 	def __init__(self, model_name, use_se=True, init_from_pretrain=True):
 		# Parameters

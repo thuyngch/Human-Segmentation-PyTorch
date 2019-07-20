@@ -91,6 +91,28 @@ class UNet(BaseModel):
 			block_unit = block(2*channel4, int(channel4/block.expansion), 1, downsample)
 			self.decoder4 = DecoderBlock(channel3, channel4, block_unit)
 
+		elif 'efficientnet' in backbone:
+			self.backbone = EfficientNet.EfficientNet(model_name=backbone, use_se=True, init_from_pretrain=True)
+			self._run_backbone = self._run_backbone_efficientnet
+			block = EfficientNet.MBConvBlock
+			# Stage 1
+			last_channel = EfficientNet.EfficientNet.in_channels_dict[backbone][3]
+			channel1 = EfficientNet.EfficientNet.in_channels_dict[backbone][2]
+			block_unit = block(2*channel1, int(channel1/block.expansion))
+			self.decoder1 = DecoderBlock(last_channel, channel1, block_unit)
+			# Stage 2
+			channel2 = EfficientNet.EfficientNet.in_channels_dict[backbone][1]
+			block_unit = block(2*channel2, int(channel2/block.expansion))
+			self.decoder2 = DecoderBlock(channel1, channel2, block_unit)
+			# Stage 3
+			channel3 = EfficientNet.EfficientNet.in_channels_dict[backbone][0]
+			block_unit = block(2*channel3, int(channel3/block.expansion))
+			self.decoder3 = DecoderBlock(channel2, channel3, block_unit)
+			# Stage 4
+			channel4 = EfficientNet.EfficientNet.in_channels_dict[backbone][0]
+			block_unit = block(2*channel4, int(channel4/block.expansion))
+			self.decoder4 = DecoderBlock(channel3, channel4, block_unit)
+
 		else:
 			raise NotImplementedError
 
