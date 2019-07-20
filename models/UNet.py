@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from functools import reduce
 
 from base import BaseModel
-from models.backbonds import MobileNetV2, ResNet
+from models.backbonds import MobileNetV2, ResNet, EfficientNet
 
 
 #------------------------------------------------------------------------------
