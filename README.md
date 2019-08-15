@@ -19,7 +19,7 @@ python measure_model.py
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
 
 ## Installation
-* Python3.6 is used in this repository.
+* Python3.6.x is used in this repository.
 * To install required packages, use pip:
 ```
 pip install -r requirements.txt
