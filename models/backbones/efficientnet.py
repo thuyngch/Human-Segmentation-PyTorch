@@ -2,27 +2,63 @@
 #  Libraries
 #------------------------------------------------------------------------------
 from base import BaseBackboneWrapper
+from timm.models.gen_efficientnet import (
+	InvertedResidual, default_cfgs, load_pretrained, _round_channels,
+	_decode_arch_def, _resolve_bn_args, swish,
+)
 from timm.models.gen_efficientnet import GenEfficientNet as BaseEfficientNet
-from timm.models.gen_efficientnet import default_cfgs, load_pretrained, _round_channels, _decode_arch_def, _resolve_bn_args, swish
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from collections import OrderedDict
+
+
+#------------------------------------------------------------------------------
+#   EfficientNetBlock
+#------------------------------------------------------------------------------
+class EfficientNetBlock(nn.Module):
+	def __init__(self, in_channels, out_channels, kernel_size=3):
+		super(EfficientNetBlock, self).__init__()
+		self.block = nn.Sequential(
+			InvertedResidual(
+				in_channels, in_channels, dw_kernel_size=kernel_size,
+				act_fn=swish, exp_ratio=6.0, se_ratio=0.25,
+			),
+			InvertedResidual(
+				in_channels, out_channels, dw_kernel_size=kernel_size,
+				act_fn=swish, exp_ratio=6.0, se_ratio=0.25,
+			),
+		)
+
+	def forward(self, x):
+		x = self.block(x)
+		return x
 
 
 #------------------------------------------------------------------------------
 #  EfficientNet
 #------------------------------------------------------------------------------
 class EfficientNet(BaseEfficientNet, BaseBackboneWrapper):
-	stages = {
-		"efficientnet_b0": [2, 3, 10, 15],
-		"efficientnet_b1": [4, 7, 15, 22],
-		"efficientnet_b2": [4, 7, 15, 22],
-		"efficientnet_b3": [4, 7, 17, 25],
-		"efficientnet_b4": [5, 9, 21, 31],
-		"efficientnet_b5": [7, 12, 26, 38],
-		"efficientnet_b6": [8, 14, 30, 44],
-		"efficientnet_b7": [10, 17, 37, 54],
+	stage_indices = {
+		"efficientnet_b0": [0, 2, 3, 10, 15],
+		"efficientnet_b1": [1, 4, 7, 15, 22],
+		"efficientnet_b2": [1, 4, 7, 15, 22],
+		"efficientnet_b3": [1, 4, 7, 17, 25],
+		"efficientnet_b4": [1, 5, 9, 21, 31],
+		"efficientnet_b5": [2, 7, 12, 26, 38],
+		"efficientnet_b6": [2, 8, 14, 30, 44],
+		"efficientnet_b7": [3, 10, 17, 37, 54],
+	}
+	stage_features = {
+		"efficientnet_b0": [16, 24, 40, 112, 320],
+		"efficientnet_b1": [16, 24, 40, 112, 320],
+		"efficientnet_b2": [16, 24, 48, 120, 352],
+		"efficientnet_b3": [24, 32, 48, 136, 384],
+		"efficientnet_b4": [24, 32, 56, 160, 448],
+		"efficientnet_b5": [24, 40, 64, 176, 512],
+		"efficientnet_b6": [32, 40, 72, 200, 576],
+		"efficientnet_b7": [32, 48, 80, 224, 640],
 	}
 	def __init__(self, block_args, model_name, frozen_stages=-1, norm_eval=False, **kargs):
 		super(EfficientNet, self).__init__(block_args=block_args, **kargs)
@@ -41,7 +77,7 @@ class EfficientNet(BaseEfficientNet, BaseBackboneWrapper):
 		outs = []
 		for idx, block in enumerate(self.blocks):
 			x = block(x)
-			if idx in self.stages[self.model_name]:
+			if idx in self.stage_indices[self.model_name]:
 				outs.append(x)
 		return tuple(outs)
 
@@ -59,13 +95,13 @@ class EfficientNet(BaseEfficientNet, BaseBackboneWrapper):
 		# Chosen subsequent blocks are also frozen gradient
 		frozen_stages = list(range(1, self.frozen_stages+1))
 		for idx, block in enumerate(self.blocks):
-			if idx <= self.stages[self.model_name][0]:
+			if idx <= self.stage_indices[self.model_name][0]:
 				stage = 1
-			elif self.stages[self.model_name][0] < idx <= self.stages[self.model_name][1]:
+			elif self.stage_indices[self.model_name][0] < idx <= self.stage_indices[self.model_name][1]:
 				stage = 2
-			elif self.stages[self.model_name][1] < idx <= self.stages[self.model_name][2]:
+			elif self.stage_indices[self.model_name][1] < idx <= self.stage_indices[self.model_name][2]:
 				stage = 3
-			elif self.stages[self.model_name][2] < idx <= self.stages[self.model_name][3]:
+			elif self.stage_indices[self.model_name][2] < idx <= self.stage_indices[self.model_name][3]:
 				stage = 4
 			if stage in frozen_stages:
 				block.eval()

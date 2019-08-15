@@ -1,5 +1,5 @@
 from .resnet import (
-    ResNet, BasicBlock, Bottleneck,
+    ResNet, BasicBlock, Bottleneck, ResNetBasicBlock, ResNetBottleneckBlock,
     resnet18, resnet26, resnet26d, resnet34,
     resnet50, resnet101, resnet152,
     tv_resnet34, tv_resnet50, tv_resnext50_32x4d,
@@ -9,7 +9,7 @@ from .resnet import (
 )
 
 from .efficientnet import (
-    EfficientNet,
+    EfficientNet, InvertedResidual, EfficientNetBlock,
     efficientnet_b0, efficientnet_b1, efficientnet_b2, efficientnet_b3,
     efficientnet_b4, efficientnet_b5, efficientnet_b6, efficientnet_b7,
 )

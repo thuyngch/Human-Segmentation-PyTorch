@@ -7,7 +7,51 @@ from timm.models.resnet import default_cfgs, load_pretrained, BasicBlock, Bottle
 
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
+import torch.nn.functional as F
+from collections import OrderedDict
+
+
+#------------------------------------------------------------------------------
+#   ResNetBlock
+#------------------------------------------------------------------------------
+class ResNetBasicBlock(nn.Module):
+	expansion = 1
+
+	def __init__(self, in_channels, out_channels):
+		super(ResNetBasicBlock, self).__init__()
+		downsample = nn.Sequential(OrderedDict([
+			("conv", nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)),
+			("bn", nn.BatchNorm2d(out_channels))
+		]))
+		self.block = BasicBlock(
+			in_channels,
+			int(out_channels/BasicBlock.expansion),
+			downsample=downsample,
+		)
+
+	def forward(self, x):
+		x = self.block(x)
+		return x
+
+
+class ResNetBottleneckBlock(nn.Module):
+	expansion = 4
+	
+	def __init__(self, in_channels, out_channels):
+		super(ResNetBottleneckBlock, self).__init__()
+		downsample = nn.Sequential(OrderedDict([
+			("conv", nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)),
+			("bn", nn.BatchNorm2d(out_channels))
+		]))
+		self.block = Bottleneck(
+			in_channels,
+			int(out_channels/Bottleneck.expansion),
+			downsample=downsample,
+		)
+
+	def forward(self, x):
+		x = self.block(x)
+		return x
 
 
 #------------------------------------------------------------------------------

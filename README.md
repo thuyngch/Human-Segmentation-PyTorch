@@ -23,6 +23,7 @@ python measure_model.py
 * To install required packages, use pip:
 ```
 pip install -r requirements.txt
+pip install -e models/pytorch-image-models
 ```
 
 ## Training

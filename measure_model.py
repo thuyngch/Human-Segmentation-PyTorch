@@ -35,7 +35,7 @@ args = parser.parse_args()
 #------------------------------------------------------------------------------
 # UNet
 model = models.UNetPlus(
-	backbone="resnet18",
+	backbone="efficientnet_b3",
 	num_classes=2,
 )
 
