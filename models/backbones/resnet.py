@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 from base import BaseBackboneWrapper
 from timm.models.resnet import ResNet as BaseResNet
-from timm.models.resnet import default_cfgs, BasicBlock, Bottleneck, load_pretrained
+from timm.models.resnet import default_cfgs, load_pretrained, BasicBlock, Bottleneck
 
 import torch
 import torch.nn as nn
@@ -18,6 +18,23 @@ class ResNet(BaseResNet, BaseBackboneWrapper):
 		super(ResNet, self).__init__(block=block, layers=layers, **kargs)
 		self.frozen_stages = frozen_stages
 		self.norm_eval = norm_eval
+
+	def forward(self, input):
+		# Stem
+		x1 = self.conv1(input)
+		x1 = self.bn1(x1)
+		x1 = self.relu(x1)
+		# Stage1
+		x2 = self.maxpool(x1)
+		x2 = self.layer1(x2)
+		# Stage2
+		x3 = self.layer2(x2)
+		# Stage3
+		x4 = self.layer3(x3)
+		# Stage4
+		x5 = self.layer4(x4)
+		# Output
+		return x1, x2, x3, x4, x5
 
 	def init_from_imagenet(self, archname):
 		load_pretrained(self, default_cfgs[archname], self.num_classes)

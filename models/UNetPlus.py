@@ -83,7 +83,6 @@ class UNetPlus(BaseModel):
 
 		# Build Backbone and Decoder
 		if ('resnet' in backbone) or ('resnext' in backbone) or ('wide_resnet' in backbone):
-			self.run_backbone = self._run_backbone_resnet
 			self.backbone = getattr(backbones, backbone)(in_chans=in_channels, frozen_stages=frozen_stages, norm_eval=norm_eval)
 			inplanes = 64
 			block = backbones.BasicBlock if '18' in backbone or '34' in backbone else backbones.Bottleneck
@@ -94,6 +93,11 @@ class UNetPlus(BaseModel):
 			self.decoder.layer2 = DecoderBlock(4*inplanes*expansion, 2*inplanes*expansion, block, squeeze=squeeze, dropout=dropout, use_deconv=use_deconv)
 			self.decoder.layer3 = DecoderBlock(2*inplanes*expansion, inplanes*expansion, block, squeeze=squeeze, dropout=dropout, use_deconv=use_deconv)
 			self.decoder.layer4 = DecoderBlock(inplanes*expansion, inplanes, block, squeeze=squeeze, dropout=dropout, use_deconv=use_deconv)
+		
+		elif 'efficientnet' in backbone:
+			self.backbone = getattr(backbones, backbone)(in_chans=in_channels, frozen_stages=frozen_stages, norm_eval=norm_eval)
+			self.decoder = nn.Module()
+
 		else:
 			raise NotImplementedError
 
@@ -133,7 +137,7 @@ class UNetPlus(BaseModel):
 
 	def forward(self, images, **kargs):
 		# Encoder
-		x1, x2, x3, x4, x5 = self.run_backbone(images)
+		x1, x2, x3, x4, x5 = self.backbone(images)
 
 		# Decoder
 		y = self.decoder.layer1(x5, x4)
@@ -150,20 +154,3 @@ class UNetPlus(BaseModel):
 		if self.cls_branch:
 			output['cls_logits'] = self.backbone.fc(F.adaptive_avg_pool2d(x5, 1).view(x5.shape[0], -1))
 		return output
-
-	def _run_backbone_resnet(self, input):
-		# Stem
-		x1 = self.backbone.conv1(input)
-		x1 = self.backbone.bn1(x1)
-		x1 = self.backbone.relu(x1)
-		# Stage1
-		x2 = self.backbone.maxpool(x1)
-		x2 = self.backbone.layer1(x2)
-		# Stage2
-		x3 = self.backbone.layer2(x2)
-		# Stage3
-		x4 = self.backbone.layer3(x3)
-		# Stage4
-		x5 = self.backbone.layer4(x4)
-		# Output
-		return x1, x2, x3, x4, x5

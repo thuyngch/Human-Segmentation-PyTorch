@@ -7,3 +7,9 @@ from .resnet import (
     resnext50_32x4d, resnext50d_32x4d, resnext101_32x4d, resnext101_32x8d, resnext101_64x4d,
     ig_resnext101_32x8d, ig_resnext101_32x16d, ig_resnext101_32x32d, ig_resnext101_32x48d,
 )
+
+from .efficientnet import (
+    EfficientNet,
+    efficientnet_b0, efficientnet_b1, efficientnet_b2, efficientnet_b3,
+    efficientnet_b4, efficientnet_b5, efficientnet_b6, efficientnet_b7,
+)
