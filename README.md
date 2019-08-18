@@ -18,10 +18,18 @@ python measure_model.py
 * [Automatic Portrait Segmentation for Image Stylization](http://xiaoyongshen.me/webpage_portrait/index.html): 1800 images
 * [Supervisely Person](https://hackernoon.com/releasing-supervisely-person-dataset-for-teaching-machines-to-segment-humans-1f1fc1f28469): 5711 images
 
-## Installation
+## Set
 * Python3.6.x is used in this repository.
+* Clone the repository:
+```
+git clone --recursive https://github.com/AntiAegis/Human-Segmentation-PyTorch.git
+cd Human-Segmentation-PyTorch
+git submodule sync
+git submodule update --init --recursive
+```
 * To install required packages, use pip:
 ```
+workon humanseg
 pip install -r requirements.txt
 pip install -e models/pytorch-image-models
 ```

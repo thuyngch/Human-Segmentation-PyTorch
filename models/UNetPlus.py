@@ -68,14 +68,12 @@ class DecoderBlock(nn.Module):
 #------------------------------------------------------------------------------
 class UNetPlus(BaseModel):
 	def __init__(self, backbone='resnet18', num_classes=2, in_channels=3,
-		use_deconv=False, squeeze=4, dropout=0.2, edge_branch=False, cls_branch=False, 
-		frozen_stages=-1, norm_eval=True, init_backbone_from_imagenet=False):
+				use_deconv=False, squeeze=4, dropout=0.2, frozen_stages=-1,
+				norm_eval=True, init_backbone_from_imagenet=False):
 
 		# Instantiate
 		super(UNetPlus, self).__init__()
 		self.in_channels = in_channels
-		self.edge_branch = edge_branch
-		self.cls_branch = cls_branch
 
 		# Build Backbone and Decoder
 		if ('resnet' in backbone) or ('resnext' in backbone) or ('wide_resnet' in backbone):
@@ -118,22 +116,6 @@ class UNetPlus(BaseModel):
 			('dropout2', nn.Dropout2d(p=dropout)),
 			('conv3', nn.Conv2d(16, num_classes, kernel_size=3, padding=1)),
 		]))
-		if edge_branch:
-			self.edge = nn.Sequential(OrderedDict([
-				('conv1', nn.Conv2d(out_channels, 32, kernel_size=3, padding=1, bias=False)),
-				('bn1', nn.BatchNorm2d(num_features=32)),
-				('relu1', nn.ReLU(inplace=True)),
-				('dropout1', nn.Dropout2d(p=dropout)),
-				('conv2', nn.Conv2d(32, 16, kernel_size=3, padding=1, bias=False)),
-				('bn2', nn.BatchNorm2d(num_features=16)),
-				('relu2', nn.ReLU(inplace=True)),
-				('dropout2', nn.Dropout2d(p=dropout)),
-				('conv3', nn.Conv2d(16, num_classes, kernel_size=3, padding=1)),
-			]))
-
-		# Classification
-		if cls_branch:
-			self.backbone.fc = nn.Linear(8*inplanes*block.expansion, num_classes)
 
 		# Initialize weights
 		self.init_weights()
@@ -152,10 +134,4 @@ class UNetPlus(BaseModel):
 		y = F.interpolate(y, scale_factor=2, mode='bilinear', align_corners=True)
 
 		# Output
-		output = dict()
-		output['logits'] = self.mask(y)
-		if self.edge_branch:
-			output['edge_logits'] = self.edge(y)
-		if self.cls_branch:
-			output['cls_logits'] = self.backbone.fc(F.adaptive_avg_pool2d(x5, 1).view(x5.shape[0], -1))
-		return output
+		return self.mask(y)

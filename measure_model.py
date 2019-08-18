@@ -34,8 +34,8 @@ args = parser.parse_args()
 #	Create model
 #------------------------------------------------------------------------------
 # UNet
-model = models.UNetPlus(
-	backbone="efficientnet_b3",
+model = models.UNet(
+	backbone="mobilenetv2",
 	num_classes=2,
 )
 
