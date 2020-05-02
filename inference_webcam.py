@@ -11,7 +11,7 @@ from base import VideoInference
 #------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Arguments for the script")
 
-parser.add_argument('--use_cuda', action='store_true', default=True,
+parser.add_argument('--use_cuda', action='store_true', default=False,
                     help='Use GPU acceleration')
 
 parser.add_argument('--input_size', type=int, default=320,
